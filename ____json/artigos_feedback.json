@@ -1,0 +1,20 @@
+[
+  {
+    "id": "455aedd5-a090-45fe-96de-c9e5747b9881",
+    "usuario": "vinicius",
+    "analise_data": "2026-05-01T10:56:36.769139",
+    "artigo_nome": "DAMA-DMBOK Overview (Data Management Body of Knowledge) — conceitos e domínios",
+    "artigo_link": "https://www.dama.org/content/body-knowledge",
+    "gostou": false,
+    "criado_em": "2026-05-01T19:53:03.937957"
+  },
+  {
+    "id": "30fff47a-1201-497f-a3ba-05b52c5c65ff",
+    "usuario": "vinicius",
+    "analise_data": "2026-05-01T10:56:36.769139",
+    "artigo_nome": "Data Governance and Stewardship — visão prática (Collibra Resources)",
+    "artigo_link": "https://www.collibra.com/us/en/resources",
+    "gostou": true,
+    "criado_em": "2026-05-01T19:53:03.947011"
+  }
+]

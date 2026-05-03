@@ -1,0 +1,90 @@
+{
+  "score": 78,
+  "veredito": "Perfil sênior e forte em Governança/ITSM, mas ainda pouco “data-driven” para sustentar a transição para Gerente de Dados/Command Center.",
+  "resumo_executivo": "Você tem senioridade percebida alta (20+ anos, BTG Pactual, liderança e escala) e um posicionamento consistente em Governança, Change e Automação. O perfil comunica bem execução e controle operacional, com credenciais relevantes (ITIL) e histórico de construção de time. Para migrar para Command Center e cargo-alvo de Gerente de Dados, falta explicitar escopo de dados/observabilidade, métricas, arquitetura de indicadores e impacto mensurável. Ajustes de headline, About e experiências com foco em “data & operations” elevam atratividade para recrutadores dessa trilha.",
+  "diagnostico": "O headline está amplo e mistura temas (Governance/ITSM/Change/Automation/IA), reduzindo clareza do alvo “Gerente de Dados/Command Center”. O About descreve responsabilidades, mas traz poucos resultados quantificados (SLA, MTTR, redução de incidentes, acurácia de indicadores, savings, compliance). As experiências têm bullets fortes, porém com trechos truncados e sem evidências de impacto/escala (KPIs, volumes, stakeholders, budget). Há base técnica (DBA + automação) que pode sustentar a transição, mas precisa ser reposicionada como governança de dados operacionais, observabilidade e gestão de métricas corporativas.",
+  "acoes_prioritarias": [
+    "Reescrever Headline e About para ancorar o posicionamento em Command Center/IT Operations Analytics + Governança de Dados Operacionais (KPIs, observabilidade, SLO/SLA, incident/change).",
+    "Reestruturar as experiências do BTG com 3-5 bullets por cargo no formato: escopo + ação + métrica + impacto (ex.: redução de falhas, ganho de produtividade, compliance, tempo de mudança, qualidade de dados).",
+    "Adicionar seção de “Projetos/Resultados” (ou destacar no About) com 3 cases: plataforma de indicadores, automação em escala e desligamento de legado—incluindo stack (Jira/ITSM, RPA, ML, SQL) e métricas."
+  ],
+  "pontos_fortes": [
+    "Senioridade e estabilidade em instituição de alta exigência (BTG Pactual) com trajetória de crescimento.",
+    "Autoridade em Governança/ITSM/Change Management com desenho de processos, fluxos e controles corporativos.",
+    "Histórico de liderança e escala (time de automação de 2 para 41), indicando capacidade de construção e gestão.",
+    "Base técnica sólida (DBA SQL Server/Oracle + automação) que pode ser convertida em narrativa de dados/observabilidade."
+  ],
+  "riscos": [
+    "Posicionamento difuso: muitos temas no headline e pouca conexão explícita com Command Center e Gestão de Dados.",
+    "Baixa evidência de impacto: ausência de números e resultados reduz competitividade para vagas sênior de dados/ops.",
+    "Percepção de perfil mais “processo/governança” do que “dados/analytics”, se não explicitar ownership de métricas, qualidade e plataforma."
+  ],
+  "palavras_chave": [
+    "Command Center",
+    "IT Operations Analytics",
+    "Observability",
+    "ITSM",
+    "Change Management",
+    "KPIs & Dashboards",
+    "Data Governance",
+    "SLA/SLO/MTTR"
+  ],
+  "headline_sugerida": "IT Governance & Operations Leader | Command Center & IT Operations Analytics | ITSM/Change | KPIs, Observability & Automation | Financial Services",
+  "sobre_sugerido": "Executivo de TI com 20+ anos de experiência em serviços financeiros, atuando em Governança de TI no BTG Pactual com foco em confiabilidade operacional, gestão de mudanças (ITSM) e evolução de controles corporativos. Lidero a estruturação de processos, fluxos e indicadores, suportando decisões críticas e priorização de iniciativas com visão de risco, continuidade e eficiência.\n\nMinha trajetória combina governança e execução: desenhei e evoluí plataformas e modelos de indicadores, conduzi iniciativas estratégicas de transição/desligamento de legado e liderei a criação de um time de automação em escala (de 2 para 41 profissionais), aplicando RPA e Machine Learning para reduzir esforço operacional e aumentar previsibilidade.\n\nNo próximo passo, busco transição para o Command Center e atuação como Gerente de Dados/Operações, consolidando governança de dados operacionais, observabilidade e gestão de métricas (SLA/SLO, MTTR, disponibilidade, qualidade) para elevar performance, transparência e tomada de decisão. Certificado ITIL v4 Foundation, com perfil colaborativo, orientado a indicadores e entrega.",
+  "checklist": [
+    {
+      "item": "Headline com cargo-alvo explícito (Command Center / Gerente de Dados) e proposta de valor clara",
+      "ok": false
+    },
+    {
+      "item": "About com narrativa executiva + foco em impacto e diferenciais",
+      "ok": true
+    },
+    {
+      "item": "Experiências com bullets completos, sem truncamentos e com escopo bem definido",
+      "ok": false
+    },
+    {
+      "item": "Resultados quantificados (SLA/MTTR, redução de incidentes, savings, produtividade, compliance)",
+      "ok": false
+    },
+    {
+      "item": "Palavras-chave alinhadas a recrutamento (Command Center, Observability, Operations Analytics, Data Governance)",
+      "ok": false
+    },
+    {
+      "item": "Seção de projetos/cases com stack e métricas (dashboards, plataforma de indicadores, automação, legado)",
+      "ok": false
+    },
+    {
+      "item": "Consistência de carreira e senioridade percebida (liderança, escala, contexto crítico)",
+      "ok": true
+    },
+    {
+      "item": "Prova social robusta (recomendações múltiplas e específicas por competência/resultado)",
+      "ok": false
+    }
+  ],
+  "artigos_recomendados": [
+    {
+      "titulo": "Como estruturar um Command Center orientado a dados (KPIs, SLO/SLA e rotinas de decisão)",
+      "descricao": "Para traduzir sua experiência de governança em um modelo de operação com métricas, cadência e ownership claros."
+    },
+    {
+      "titulo": "Observability e IT Operations Analytics: do monitoramento ao insight acionável",
+      "descricao": "Para reforçar o vocabulário e o posicionamento técnico-executivo esperado em Command Center e operações modernas."
+    },
+    {
+      "titulo": "Data Governance aplicada a dados operacionais (ITSM): qualidade, linhagem e confiabilidade de indicadores",
+      "descricao": "Para conectar Change/ITSM com governança de dados e elevar sua narrativa para ‘Gerente de Dados’."
+    }
+  ],
+  "meta": {
+    "especialidade": "Gerente de Governança",
+    "senioridade": "Sênior",
+    "objetivo": "Transiçào de time para o Command Center",
+    "cargo_alvo": "Gerente de dados",
+    "data": "2026-04-26T15:04:42.125667",
+    "modelo": "gpt-5.2"
+  }
+}

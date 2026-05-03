@@ -1,0 +1,94 @@
+{
+  "score": 78,
+  "veredito": "Perfil forte em Governança/ITSM no financeiro, mas ainda não “vende” a transição para Gestão de Dados com clareza e provas.",
+  "resumo_executivo": "Você tem senioridade percebida alta (Diretor), histórico sólido e contínuo no mercado financeiro e entregas relevantes em governança, mudança e automação. O perfil está bem posicionado para liderança de operações/ITSM e transformação, porém a narrativa e as palavras‑chave ainda não sustentam o cargo alvo de Gerente de Dados. Falta evidência explícita de ownership de dados (data governance, qualidade, catálogo, lineage, MDM) e resultados mensuráveis ligados a dados. Com ajustes de posicionamento, headline, About e experiências, dá para tornar a transição crível para recrutadores de Data/Analytics no financeiro.",
+  "diagnostico": "A headline atual é ampla e orientada a IT Governance/ITSM; para transição, precisa ancorar “Data Governance / Data Management” e o contexto financeiro. O About descreve bem governança e change, mas não conecta diretamente com gestão de dados, domínios, políticas, qualidade, compliance e métricas de dados. As experiências têm impacto (ex.: automação e crescimento de time), porém faltam KPIs e bullets orientados a outcomes e a iniciativas de dados (ex.: catálogo, DQ, stewardship, controles, auditoria de dados). As habilidades estão dispersas e misturam hard/soft sem priorização por cargo alvo. Há boa base técnica (DBA) que pode ser reativada como credencial para dados, mas precisa ser “reembalada” como trajetória rumo a Data Management.",
+  "acoes_prioritarias": [
+    "Reposicionar headline + About para “Data Governance / Data Management no mercado financeiro”, explicitando escopo (qualidade, catálogo, lineage, políticas, controles, compliance) e 2-3 resultados mensuráveis.",
+    "Reescrever as duas experiências de Diretor no BTG com bullets orientados a impacto e linguagem de dados (governança, métricas, controles, risco, auditoria, SLAs/OLAs de dados, automação aplicada a qualidade/observabilidade), incluindo números (redução de incidentes, lead time de change, disponibilidade, ganho de produtividade, cobertura de automações).",
+    "Criar uma seção de “Projetos/Featured” (ou incluir no About) com 2-3 cases relevantes para dados: ex.: padronização de indicadores corporativos, governança de plataformas, automação com ML/RPA aplicada a controles; e adicionar certificação/curso curto de Data Governance (DAMA/CDMP fundamentals, Data Management, LGPD aplicada a dados) para sinalizar transição."
+  ],
+  "pontos_fortes": [
+    "Senioridade e credibilidade no mercado financeiro (longa permanência e progressão no BTG Pactual).",
+    "Autoridade em Governança/ITSM/Change Management com atuação corporativa e foco em risco/continuidade.",
+    "Histórico de liderança e escala (time de automação de 2 para 41), indicando capacidade de construir operação.",
+    "Base técnica relevante para dados (DBA SQL Server/Oracle) que sustenta diálogo com engenharia e arquitetura."
+  ],
+  "riscos": [
+    "Recrutadores de Dados podem interpretar o perfil como 100% ITSM/Governança de TI, sem ownership de dados.",
+    "Falta de provas objetivas (KPIs, escopo, stack e resultados) reduz atratividade para vagas competitivas de Data Manager.",
+    "Palavras‑chave e habilidades não estão priorizadas para Data Governance/Data Management, prejudicando busca (ATS/LinkedIn search)."
+  ],
+  "palavras_chave": [
+    "Data Governance",
+    "Data Management",
+    "Data Quality",
+    "Data Catalog",
+    "Data Lineage",
+    "Master Data Management (MDM)",
+    "Metadata Management",
+    "Risk & Compliance (Financial Services)"
+  ],
+  "headline_sugerida": "IT Director | Data Governance & Data Management | ITSM/Change | Automação (RPA/ML) | Controles, Indicadores e Risco | Financial Services",
+  "sobre_sugerido": "Executivo de Tecnologia com +20 anos no mercado financeiro, atuando em Governança no BTG Pactual com foco em controles corporativos, indicadores, mitigação de risco e continuidade operacional. Lidero a estruturação e evolução de processos e plataformas críticas, conectando estratégia, operação e compliance para sustentar decisões e priorização executiva.\n\nMinha experiência combina Governança/ITSM e transformação com forte base técnica (SQL Server/Oracle) e histórico de construção de times e escala operacional. Como Head de Automation, criei e liderei uma área que cresceu de 2 para 41 profissionais, com automações em larga escala e uso de ML/RPA para ganho de eficiência e padronização de controles.\n\nNo próximo passo, estou direcionando minha carreira para Gestão de Dados (Data Governance/Data Management) no setor financeiro, aplicando minha vivência em governança, métricas, auditoria e gestão de mudanças para estruturar políticas, qualidade, catálogo/metadata, stewardship e controles que aumentem confiabilidade, rastreabilidade e valor do dado para o negócio.",
+  "checklist": [
+    {
+      "item": "Headline com cargo alvo (Gestão de Dados / Data Governance) e contexto (Financial Services)",
+      "ok": false
+    },
+    {
+      "item": "About com proposta de valor clara + escopo + diferenciais + direção de carreira",
+      "ok": true
+    },
+    {
+      "item": "Experiências com bullets orientados a resultados e métricas (KPIs) por função",
+      "ok": false
+    },
+    {
+      "item": "Palavras‑chave de Data Management (DQ, catálogo, lineage, MDM, metadata) distribuídas no perfil",
+      "ok": false
+    },
+    {
+      "item": "Evidência de liderança e escala (time, orçamento, governança corporativa)",
+      "ok": true
+    },
+    {
+      "item": "Seção Featured/Projetos com 2-3 cases relevantes para dados",
+      "ok": false
+    },
+    {
+      "item": "Base técnica e credenciais (DBA + automação + ITIL) bem sinalizadas",
+      "ok": true
+    },
+    {
+      "item": "Certificações/curso específico de Data Governance/Data Management para sinalizar transição",
+      "ok": false
+    }
+  ],
+  "artigos_recomendados": [
+    {
+      "titulo": "DAMA-DMBOK Overview (Data Management Body of Knowledge) — conceitos e domínios",
+      "link": "https://www.dama.org/content/body-knowledge",
+      "descricao": "Base para estruturar seu discurso e palavras‑chave de Gestão de Dados (governança, qualidade, metadata, MDM) com linguagem de mercado."
+    },
+    {
+      "titulo": "Data Governance and Stewardship — visão prática (Collibra Resources)",
+      "link": "https://www.collibra.com/us/en/resources",
+      "descricao": "Ajuda a traduzir sua experiência em governança/controles para o modelo de operating model de dados (stewards, owners, políticas, catálogo)."
+    },
+    {
+      "titulo": "Microsoft Learn — Data Governance e arquitetura de dados no Azure (conceitos)",
+      "link": "https://learn.microsoft.com/en-us/azure/cloud-adoption-framework/scenarios/cloud-scale-analytics/governance",
+      "descricao": "Material prático para conectar governança a plataformas modernas e termos buscados por recrutadores (catálogo, lineage, controles, compliance)."
+    }
+  ],
+  "meta": {
+    "especialidade": "Gerente de Governança",
+    "senioridade": "Diretor",
+    "objetivo": "Transiçáo de carreira",
+    "cargo_alvo": "Gerente de dados",
+    "data": "2026-05-01T10:56:36.769139",
+    "modelo": "gpt-5.2",
+    "usuario": "vinicius"
+  }
+}

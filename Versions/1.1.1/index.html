@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AnalisadorCV IA</title>
+  <style>
+    :root {
+      --bg: #f6f8fb; --card: #ffffff; --text: #172033; --muted: #667085;
+      --primary: #0a66c2; --primary-dark: #084f96; --border: #d9e1ec; --danger: #b42318;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: Arial, Helvetica, sans-serif; background: var(--bg); color: var(--text); }
+    .container { max-width: 1120px; margin: 0 auto; padding: 32px 20px; }
+    .topbar { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 20px; }
+    .brand { font-weight: 800; font-size: 18px; }
+    .version { background: #eef6ff; color: var(--primary); padding: 6px 10px; border-radius: 999px; font-size: 13px; font-weight: 700; }
+    .hero { margin-bottom: 24px; }
+    .hero h1 { margin: 0 0 8px; font-size: 32px; line-height: 1.15; }
+    .hero p { color: var(--muted); font-size: 16px; max-width: 780px; margin: 0; }
+    .grid { display: grid; grid-template-columns: 430px 1fr; gap: 20px; align-items: start; }
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 20px; box-shadow: 0 8px 20px rgba(16, 24, 40, 0.05); }
+    label { display: block; font-weight: 700; margin: 14px 0 6px; }
+    input, select, textarea { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 10px; font-size: 14px; background: #fff; }
+    textarea { min-height: 120px; resize: vertical; }
+    .hint { color: var(--muted); font-size: 12px; margin-top: 6px; line-height: 1.35; }
+    button { width: 100%; margin-top: 18px; padding: 13px 16px; border: 0; border-radius: 12px; background: var(--primary); color: #fff; font-weight: 700; font-size: 15px; cursor: pointer; }
+    button:hover { background: var(--primary-dark); }
+    button:disabled { opacity: .65; cursor: not-allowed; }
+    .result-empty { color: var(--muted); padding: 32px; text-align: center; border: 1px dashed var(--border); border-radius: 14px; }
+    .score-box { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 18px; background: #eef6ff; border-radius: 14px; margin-bottom: 16px; }
+    .score { font-size: 42px; font-weight: 800; color: var(--primary); }
+    .section { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--border); }
+    .section h3 { margin: 0 0 10px; font-size: 18px; }
+    ul { padding-left: 20px; margin-top: 8px; }
+    li { margin-bottom: 8px; }
+    .pill { display: inline-block; padding: 5px 9px; border-radius: 999px; background: #f2f4f7; font-size: 12px; margin: 4px 4px 0 0; }
+    .error { color: var(--danger); background: #fef3f2; border: 1px solid #fecdca; padding: 12px; border-radius: 10px; margin-top: 12px; }
+    .loading { color: var(--muted); margin-top: 12px; }
+    .copy-box { white-space: pre-wrap; background: #f8fafc; border: 1px solid var(--border); border-radius: 12px; padding: 12px; line-height: 1.45; }
+    .footer { color: var(--muted); font-size: 12px; margin-top: 24px; text-align: center; }
+    @media (max-width: 900px) { .grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <main class="container">
+    <div class="topbar">
+      <div class="brand">AnalisadorCV IA</div>
+      <div class="version">v0.1.1</div>
+    </div>
+
+    <section class="hero">
+      <h1>Análise de LinkedIn com IA</h1>
+      <p>Envie o ZIP oficial de exportação do LinkedIn, informe especialidade e senioridade. A IA avalia posicionamento profissional, riscos e melhorias prioritárias.</p>
+    </section>
+
+    <section class="grid">
+      <form id="analyzeForm" class="card">
+        <h2>Dados do candidato</h2>
+
+        <label for="linkedin_file">Arquivo exportado do LinkedIn</label>
+        <input id="linkedin_file" name="linkedin_file" type="file" accept=".zip,.pdf,.txt" required />
+        <div class="hint">Preferencial: ZIP baixado em “Obter uma cópia dos seus dados” no LinkedIn. Também aceita PDF ou TXT para testes.</div>
+
+        <label for="specialty">Especialidade</label>
+        <input id="specialty" name="specialty" placeholder="Ex.: RH, Governança de TI, Dados, Comercial B2B" required />
+
+        <label for="seniority">Senioridade</label>
+        <select id="seniority" name="seniority" required>
+          <option value="">Selecione</option>
+          <option>Estágio</option><option>Júnior</option><option>Pleno</option><option>Sênior</option>
+          <option>Especialista</option><option>Coordenação</option><option>Gerência</option><option>Diretoria</option><option>C-Level</option>
+        </select>
+
+        <label for="objective">Objetivo profissional</label>
+        <select id="objective" name="objective" required>
+          <option value="">Selecione</option>
+          <option>Recolocação</option><option>Promoção interna</option><option>Autoridade profissional</option>
+          <option>Networking</option><option>Vendas / Social Selling</option><option>Atração de recrutadores</option>
+        </select>
+
+        <label for="target_role">Cargo ou vaga-alvo</label>
+        <input id="target_role" name="target_role" placeholder="Opcional: Gerente de RH, Data Analyst, Product Manager..." />
+
+        <label for="extra_context">Contexto adicional</label>
+        <textarea id="extra_context" name="extra_context" placeholder="Opcional: setor de interesse, pontos que deseja reforçar, mudança de carreira, etc."></textarea>
+
+        <button id="submitBtn" type="submit">Analisar perfil</button>
+        <div id="status" class="loading"></div>
+        <div id="error" class="error" style="display:none;"></div>
+      </form>
+
+      <section class="card">
+        <h2>Resultado da análise</h2>
+        <div id="result" class="result-empty">O resultado aparecerá aqui após o envio.</div>
+      </section>
+    </section>
+
+    <div class="footer">AnalisadorCV IA • v0.1.1</div>
+  </main>
+
+  <script>
+    const form = document.getElementById("analyzeForm");
+    const result = document.getElementById("result");
+    const statusEl = document.getElementById("status");
+    const errorEl = document.getElementById("error");
+    const submitBtn = document.getElementById("submitBtn");
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;").replaceAll("'", "&#039;");
+    }
+
+    function list(items) {
+      if (!items || !items.length) return "<p>Não informado.</p>";
+      return `<ul>${items.map(item => `<li>${escapeHtml(item)}</li>`).join("")}</ul>`;
+    }
+
+    function pills(items) {
+      if (!items || !items.length) return "<p>Não informado.</p>";
+      return items.map(item => `<span class="pill">${escapeHtml(item)}</span>`).join("");
+    }
+
+    function renderAnalysis(data) {
+      result.className = "";
+      result.innerHTML = `
+        <div class="score-box">
+          <div>
+            <strong>Score geral</strong>
+            <div class="hint">Avaliação de 0 a 100 • ${escapeHtml(data.app_version || "v0.1.1")}</div>
+          </div>
+          <div class="score">${escapeHtml(data.score_geral)}</div>
+        </div>
+        <div class="section"><h3>Diagnóstico executivo</h3><p>${escapeHtml(data.diagnostico)}</p></div>
+        <div class="section"><h3>Pontos fortes</h3>${list(data.pontos_fortes)}</div>
+        <div class="section"><h3>Riscos de posicionamento</h3>${list(data.pontos_de_risco)}</div>
+        <div class="section"><h3>Palavras-chave recomendadas</h3>${pills(data.palavras_chave_recomendadas)}</div>
+        <div class="section"><h3>Headline sugerida</h3><div class="copy-box">${escapeHtml(data.headline_sugerida)}</div></div>
+        <div class="section"><h3>Sobre sugerido</h3><div class="copy-box">${escapeHtml(data.sobre_sugerido)}</div></div>
+        <div class="section"><h3>Ações prioritárias</h3>${list(data.acoes_prioritarias)}</div>
+        <div class="section"><h3>Checklist</h3>${list(data.checklist)}</div>
+      `;
+    }
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      errorEl.style.display = "none";
+      errorEl.textContent = "";
+      statusEl.textContent = "Lendo arquivo e analisando o perfil...";
+      submitBtn.disabled = true;
+
+      try {
+        const response = await fetch("/analyze", { method: "POST", body: new FormData(form) });
+        const payload = await response.json();
+        if (!response.ok) throw new Error(payload.detail || "Erro ao analisar o perfil.");
+        renderAnalysis(payload);
+        statusEl.textContent = "Análise concluída.";
+      } catch (error) {
+        errorEl.textContent = error.message;
+        errorEl.style.display = "block";
+        statusEl.textContent = "";
+      } finally {
+        submitBtn.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>

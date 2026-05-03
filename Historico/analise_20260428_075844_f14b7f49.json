@@ -1,0 +1,91 @@
+{
+  "score": 74,
+  "veredito": "Perfil forte em Governança/ITSM no financeiro, mas ainda não “vende” Gerência de Dados com clareza e provas.",
+  "resumo_executivo": "Você tem senioridade real e credibilidade no mercado financeiro, com histórico consistente no BTG Pactual e entregas relevantes em Governança e Automação. O perfil está bem posicionado para liderança de TI, porém a transição para Gerente de Dados ainda não está explicitada em narrativa, palavras‑chave e resultados ligados a dados. Falta conectar sua base técnica (DBA) e experiência executiva a um escopo moderno de Data Management/Data Governance. Com ajustes de posicionamento e evidências, o perfil pode atrair recrutadores de Data/Analytics com mais precisão.",
+  "diagnostico": "A headline e o About comunicam “IT Executive/Governance/ITSM”, mas não ancoram o cargo-alvo (Gerente de Dados) nem os domínios críticos (Data Governance, Data Quality, Data Architecture, MDM, Data Catalog, LGPD). As experiências estão descritas como responsabilidades, com pouca quantificação de impacto (risco, disponibilidade, auditoria, eficiência, custos, compliance). Há um ativo importante pouco explorado: trajetória de DBA + liderança de automação com ML/RPA, que pode ser reposicionada como base para gestão de plataformas e governança de dados. Também falta padronização e completude (bullets truncados, termos genéricos, formação sem curso/área), o que reduz percepção de rigor executivo.",
+  "acoes_prioritarias": [
+    "Reposicionar headline + About para “Gerente de Dados / Data Governance” e explicitar o porquê da transição (ponte entre Governança/ITSM, automação e gestão de dados no financeiro).",
+    "Reescrever as duas experiências mais recentes com foco em resultados mensuráveis e escopo de dados (controles, auditoria, qualidade, lineage, catálogo, ownership, SLAs de dados, redução de incidentes/riscos).",
+    "Adicionar seção de competências e palavras‑chave de Data Management (DAMA, Data Governance, Data Quality, MDM, Data Catalog, Data Lineage, LGPD) e incluir 2–3 projetos/cases no Featured (ex.: governança de indicadores, plataforma de change com métricas, automações com impacto em dados)."
+  ],
+  "pontos_fortes": [
+    "Senioridade percebida alta: 20+ anos e longa trajetória em instituição de referência no mercado financeiro.",
+    "Autoridade em Governança/ITSM/Change Management com atuação corporativa e foco em risco e continuidade.",
+    "Experiência comprovada de liderança e escala (time de automação de 2 para 41 profissionais).",
+    "Base técnica sólida (DBA SQL Server/Oracle) que sustenta credibilidade para migrar para gestão de dados."
+  ],
+  "riscos": [
+    "Recrutadores de Dados podem não encontrar aderência por ausência de termos e entregas típicas de Data Management/Data Governance.",
+    "Descrições com bullets incompletos e pouca quantificação reduzem percepção de excelência e impacto executivo.",
+    "Headline ampla demais (“IT Executive”) pode atrair vagas genéricas de TI e diluir a estratégia de transição para Dados."
+  ],
+  "palavras_chave": [
+    "Data Governance",
+    "Data Management",
+    "Data Quality",
+    "Master Data Management (MDM)",
+    "Data Catalog",
+    "Data Lineage",
+    "LGPD",
+    "Financial Services"
+  ],
+  "headline_sugerida": "Gerente de Governança (Sênior) | Transição para Gerente de Dados (Data Governance & Data Management) | ITSM/Change | Automação (RPA/ML) | Mercado Financeiro",
+  "sobre_sugerido": "Executivo de Tecnologia com 20+ anos no mercado financeiro, atuando em Governança de TI no BTG Pactual, com foco em processos corporativos, controles, indicadores e mitigação de risco. Lidero iniciativas críticas de Change Management e transição/desligamento de legados, garantindo continuidade operacional e aderência a padrões de governança.\n\nMinha trajetória combina liderança executiva e base técnica profunda (SQL Server/Oracle), além de experiência em escala com automação: criei e liderei uma área que cresceu de 2 para 41 profissionais, com entregas em RPA e uso de Machine Learning para eficiência operacional. Essa combinação me permite conectar governança, plataforma, processos e dados com visão de ponta a ponta.\n\nNo próximo passo, estou direcionando minha carreira para Gestão de Dados, com foco em Data Governance e Data Management no contexto regulado do setor financeiro: qualidade e confiabilidade de dados, ownership, métricas, controles e redução de risco operacional. Aberto a conversas sobre posições de Gerente de Dados/Head de Data Governance, onde governança e execução caminhem juntas.",
+  "checklist": [
+    {
+      "item": "Headline contém cargo-alvo (Gerente de Dados) e especialidade (Data Governance/Data Management)",
+      "ok": false
+    },
+    {
+      "item": "About explica proposta de valor e contexto (financeiro, risco, continuidade) com clareza",
+      "ok": true
+    },
+    {
+      "item": "Experiências recentes têm resultados quantificados (KPIs, redução de risco/incidentes/custos)",
+      "ok": false
+    },
+    {
+      "item": "Palavras-chave de Dados (Data Quality, MDM, Catalog, Lineage, LGPD) estão presentes e consistentes",
+      "ok": false
+    },
+    {
+      "item": "Senioridade e liderança estão evidentes (escopo, times, governança corporativa)",
+      "ok": true
+    },
+    {
+      "item": "Formação acadêmica está completa (curso/área, instituição do superior) e reforça posicionamento",
+      "ok": false
+    },
+    {
+      "item": "Histórico no mercado financeiro reforça autoridade e atratividade para recrutadores do setor",
+      "ok": true
+    },
+    {
+      "item": "Perfil tem “provas” visíveis (Featured, cases, apresentações, artigos) alinhadas a Dados",
+      "ok": false
+    }
+  ],
+  "artigos_recomendados": [
+    {
+      "titulo": "Como estruturar Data Governance no setor financeiro (ownership, políticas e comitês)",
+      "descricao": "Para traduzir sua experiência de governança corporativa em um modelo de governança de dados reconhecível por recrutadores de Data."
+    },
+    {
+      "titulo": "Data Quality e métricas: do KPI operacional ao KPI de confiabilidade de dados",
+      "descricao": "Para conectar sua força em indicadores/controles a práticas de qualidade de dados e SLAs/SLOs de dados."
+    },
+    {
+      "titulo": "Data Catalog e Data Lineage: como acelerar auditoria, compliance e eficiência",
+      "descricao": "Para reforçar o discurso de risco/compliance com ferramentas e conceitos atuais de gestão de dados."
+    }
+  ],
+  "meta": {
+    "especialidade": "Gerente de Governança",
+    "senioridade": "Sênior",
+    "objetivo": "Transição de carreira",
+    "cargo_alvo": "Gerente de dados",
+    "data": "2026-04-28T07:58:33.505142",
+    "modelo": "gpt-5.2",
+    "usuario": "vinicius"
+  }
+}
