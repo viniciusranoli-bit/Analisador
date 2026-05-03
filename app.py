@@ -6,6 +6,7 @@ Backend FastAPI + OpenAI
 import os
 import json
 import logging
+import tempfile
 import zipfile
 import io
 import csv
@@ -33,12 +34,44 @@ from supabase_client import supabase_configured
 import supabase_store
 
 logger = logging.getLogger("analisadorcv")
-_JSON_LOG_REL = Path("json") / "analisadorcv.log"
+
+
+def _is_vercel_runtime() -> bool:
+    """Na Vercel o filesystem do runtime é só leitura exceto o diretório temporário."""
+    return bool(os.getenv("VERCEL"))
+
+
+def _data_root() -> Path:
+    if _is_vercel_runtime():
+        return Path(tempfile.gettempdir()) / "analisadorcv"
+    return Path(".")
+
+
+_DATA_ROOT = _data_root()
+if _is_vercel_runtime():
+    _DATA_ROOT.mkdir(parents=True, exist_ok=True)
+
+HISTORICO_DIR = _DATA_ROOT / "Historico"
+USERS_DIR = _DATA_ROOT / "json"
+HISTORICO_DIR.mkdir(parents=True, exist_ok=True)
+USERS_DIR.mkdir(parents=True, exist_ok=True)
+
+USERS_FILE = USERS_DIR / "users.json"
+if not USERS_FILE.exists():
+    USERS_FILE.write_text("[]", encoding="utf-8")
+ARTIGOS_FEEDBACK_FILE = USERS_DIR / "artigos_feedback.json"
+if not ARTIGOS_FEEDBACK_FILE.exists():
+    ARTIGOS_FEEDBACK_FILE.write_text("[]", encoding="utf-8")
+SUGESTOES_FILE = USERS_DIR / "sugestoes_funcionalidades.json"
+if not SUGESTOES_FILE.exists():
+    SUGESTOES_FILE.write_text("[]", encoding="utf-8")
+
+_JSON_LOG_REL = USERS_DIR / "analisadorcv.log"
 
 
 def _ensure_json_file_log_handler() -> Path:
-    """Escreve logs de persistência/Supabase em json/analisadorcv.log."""
-    _JSON_LOG_REL.parent.mkdir(parents=True, exist_ok=True)
+    """Escreve logs de persistência/Supabase em json/analisadorcv.log (ou sob /tmp na Vercel)."""
+    USERS_DIR.mkdir(parents=True, exist_ok=True)
     path = _JSON_LOG_REL.resolve()
     for h in logger.handlers:
         if isinstance(h, logging.FileHandler):
@@ -52,6 +85,7 @@ def _ensure_json_file_log_handler() -> Path:
     fh.setFormatter(logging.Formatter("%(asctime)s | %(levelname)s | %(message)s"))
     logger.addHandler(fh)
     return _JSON_LOG_REL
+
 
 app = FastAPI(title="Analisador de LinkedIn", version="1.1.0")
 
@@ -99,22 +133,6 @@ app.add_middleware(
 STATIC_DIR = Path("static")
 if STATIC_DIR.exists():
     app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
-
-HISTORICO_DIR = Path("Historico")
-HISTORICO_DIR.mkdir(exist_ok=True)
-
-# Persistência de usuários (JSON)
-USERS_DIR = Path("json")
-USERS_DIR.mkdir(exist_ok=True)
-USERS_FILE = USERS_DIR / "users.json"
-if not USERS_FILE.exists():
-    USERS_FILE.write_text("[]", encoding="utf-8")
-ARTIGOS_FEEDBACK_FILE = USERS_DIR / "artigos_feedback.json"
-if not ARTIGOS_FEEDBACK_FILE.exists():
-    ARTIGOS_FEEDBACK_FILE.write_text("[]", encoding="utf-8")
-SUGESTOES_FILE = USERS_DIR / "sugestoes_funcionalidades.json"
-if not SUGESTOES_FILE.exists():
-    SUGESTOES_FILE.write_text("[]", encoding="utf-8")
 
 # Credenciais admin (fixas)
 ADMIN_USERNAME = "admin"
