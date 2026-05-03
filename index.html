@@ -142,6 +142,15 @@ body {
   border-color: rgba(255,255,255,.5) !important;
   color: var(--navy) !important;
 }
+.sidebar-footer .landing-back-link {
+  display: block;
+  margin-top: 14px;
+  text-align: center;
+  font-size: 11px;
+  color: rgba(255,255,255,.5);
+  text-decoration: none;
+}
+.sidebar-footer .landing-back-link:hover { color: var(--white); }
 
 /* ─── MAIN CONTENT ─── */
 .main {
@@ -1031,6 +1040,7 @@ textarea { resize: vertical; min-height: 80px; }
   <div class="sidebar-footer">
     <div id="auth-user-label">Não autenticado</div>
     <button type="button" class="btn btn-primary btn-sm btn-logout-sidebar" onclick="logout()">Sair</button>
+    <a href="/" class="landing-back-link">← Página inicial</a>
   </div>
 </nav>
 

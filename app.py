@@ -652,7 +652,15 @@ Gere a análise completa conforme estrutura JSON definida."""
 # ─────────────────────────────────────────────
 
 @app.get("/", response_class=HTMLResponse)
-async def root():
+async def landing():
+    path = Path("landing.html")
+    if path.exists():
+        return HTMLResponse(content=path.read_text(encoding="utf-8"))
+    raise HTTPException(status_code=404, detail="landing.html não encontrado")
+
+
+@app.get("/app", response_class=HTMLResponse)
+async def app_ui():
     html_path = Path("index.html")
     if html_path.exists():
         return HTMLResponse(content=html_path.read_text(encoding="utf-8"))
