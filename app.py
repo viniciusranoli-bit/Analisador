@@ -692,18 +692,28 @@ async def analisar(
 
     client = openai.OpenAI(api_key=api_key)
     response = None
+
+    def _chat_create() -> Any:
+        """Modelos recentes exigem max_completion_tokens na API; SDKs antigos só aceitam max_tokens."""
+        base = dict(
+            model=model,
+            messages=[
+                {"role": "system", "content": SYSTEM_PROMPT},
+                {"role": "user", "content": user_prompt},
+            ],
+            temperature=0.3,
+            timeout=90.0,
+        )
+        try:
+            return client.chat.completions.create(**base, max_completion_tokens=2000)
+        except TypeError as e:
+            if "max_completion_tokens" not in str(e):
+                raise
+            return client.chat.completions.create(**base, max_tokens=2000)
+
     for tentativa in range(3):
         try:
-            response = client.chat.completions.create(
-                model=model,
-                messages=[
-                    {"role": "system", "content": SYSTEM_PROMPT},
-                    {"role": "user", "content": user_prompt},
-                ],
-                temperature=0.3,
-                max_tokens=2000,
-                timeout=90.0,
-            )
+            response = _chat_create()
             break
         except openai.AuthenticationError:
             raise HTTPException(status_code=401, detail="OPENAI_API_KEY inválida. Verifique sua chave.")
