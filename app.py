@@ -701,7 +701,7 @@ async def analisar(
                     {"role": "user", "content": user_prompt},
                 ],
                 temperature=0.3,
-                max_completion_tokens=2000,
+                max_tokens=2000,
                 timeout=90.0,
             )
             break
