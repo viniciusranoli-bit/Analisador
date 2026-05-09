@@ -16,7 +16,7 @@ def _norm_user(u: str) -> str:
 
 
 async def db_users_list() -> list[dict[str, Any]]:
-    rows = await sb_json("GET", "app_users", params={"select": "username,created_at,updated_at", "order": "username.asc"})
+    rows = await sb_json("GET", "app_users", params={"select": "username,email,role,created_at,updated_at", "order": "username.asc"})
     if not isinstance(rows, list):
         return []
     out = []
@@ -24,13 +24,15 @@ async def db_users_list() -> list[dict[str, Any]]:
         if isinstance(r, dict):
             out.append({
                 "username": str(r.get("username", "")),
+                "email": str(r.get("email", "")),
+                "role": str(r.get("role", "user")),
                 "created_at": r.get("created_at"),
                 "updated_at": r.get("updated_at"),
             })
     return out
 
 
-async def db_users_find(username: str) -> Optional[dict[str, Any]]:
+async def db_users_find_by_username(username: str) -> Optional[dict[str, Any]]:
     u = _norm_user(username)
     if not u:
         return None
@@ -44,22 +46,46 @@ async def db_users_find(username: str) -> Optional[dict[str, Any]]:
     return None
 
 
-async def db_users_insert(username: str, salt: str, password_hash: str) -> None:
+async def db_users_find_by_email(email: str) -> Optional[dict[str, Any]]:
+    e = _norm_user(email)
+    if not e:
+        return None
+    rows = await sb_json(
+        "GET",
+        "app_users",
+        params={"select": "*", "email": f"eq.{e}", "limit": "1"},
+    )
+    if isinstance(rows, list) and rows and isinstance(rows[0], dict):
+        return rows[0]
+    return None
+
+
+async def db_users_find(username: str) -> Optional[dict[str, Any]]:
+    return await db_users_find_by_username(username)
+
+
+async def db_users_insert(username: str, email: str, salt: str, password_hash: str, role: str = "user") -> None:
     u = _norm_user(username)
+    e = _norm_user(email)
+    r = role if role in ("admin", "user") else "user"
     now = datetime.now().isoformat()
     await sb_json(
         "POST",
         "app_users",
-        json_body={"username": u, "salt": salt, "password_hash": password_hash, "created_at": now, "updated_at": now},
+        json_body={"username": u, "email": e, "role": r, "salt": salt, "password_hash": password_hash, "created_at": now, "updated_at": now},
         prefer="return=minimal",
     )
 
 
-async def db_users_update(username_old: str, new_username: Optional[str], password_hash: Optional[str], salt: Optional[str]) -> bool:
+async def db_users_update(username_old: str, new_username: Optional[str], new_email: Optional[str], password_hash: Optional[str], salt: Optional[str], new_role: Optional[str] = None) -> bool:
     old = _norm_user(username_old)
     patch: dict[str, Any] = {"updated_at": datetime.now().isoformat()}
     if new_username:
         patch["username"] = _norm_user(new_username)
+    if new_email:
+        patch["email"] = _norm_user(new_email)
+    if new_role and new_role in ("admin", "user"):
+        patch["role"] = new_role
     if password_hash and salt:
         patch["password_hash"] = password_hash
         patch["salt"] = salt

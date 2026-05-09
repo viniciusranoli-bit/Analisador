@@ -1,0 +1,6 @@
+Sempre orientar usuário:
+
+cd C:\Projetos\AnalisadorCV
+.venv\Scripts\activate
+pip install -r requirements.txt
+python -m uvicorn app:app --reload

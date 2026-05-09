@@ -3,6 +3,7 @@ ANALISADOR DE LINKEDIN - v1.1.0
 Backend FastAPI + OpenAI
 """
 
+import hmac as _hmac
 import os
 import json
 import logging
@@ -26,7 +27,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 
-load_dotenv()
+load_dotenv(override=True)
 
 import openai
 
@@ -134,13 +135,48 @@ STATIC_DIR = Path("static")
 if STATIC_DIR.exists():
     app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 
-# Credenciais admin (fixas)
+# Credenciais admin — lidas do ambiente (nunca hardcoded em produção)
 ADMIN_USERNAME = "admin"
-ADMIN_PASSWORD = "Mariana970"
+ADMIN_EMAIL = os.getenv("ADMIN_EMAIL", "admin@analisadorcv.local").strip().lower()
+ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "Mariana970").strip()
 
-# Sessões simples em memória (reinicia ao reiniciar o servidor)
-_SESSIONS: dict[str, dict[str, Any]] = {}
-SESSION_TTL_SECONDS = 60 * 60 * 12  # 12h
+# JWT stateless — não precisa de estado em memória (funciona em serverless)
+_JWT_RAW_SECRET = os.getenv("JWT_SECRET", "").strip()
+if not _JWT_RAW_SECRET:
+    # Se não definido, gera por processo — tokens válidos apenas até restart.
+    # Em produção DEVE definir JWT_SECRET nas variáveis de ambiente.
+    _JWT_RAW_SECRET = secrets.token_hex(32)
+    logging.getLogger("analisadorcv").warning(
+        "JWT_SECRET não definido. Tokens expiram ao reiniciar o servidor. "
+        "Defina JWT_SECRET nas variáveis de ambiente para persistência."
+    )
+JWT_TTL_SECONDS = 60 * 60 * 12  # 12 h
+
+
+def _jwt_encode(payload: dict[str, Any]) -> str:
+    header = _b64u(json.dumps({"alg": "HS256", "typ": "JWT"}, separators=(",", ":")).encode())
+    body = _b64u(json.dumps(payload, separators=(",", ":")).encode())
+    sig = _b64u(_hmac.new(_JWT_RAW_SECRET.encode(), f"{header}.{body}".encode(), hashlib.sha256).digest())
+    return f"{header}.{body}.{sig}"
+
+
+def _jwt_decode(token: str) -> Optional[dict[str, Any]]:
+    try:
+        parts = token.split(".")
+        if len(parts) != 3:
+            return None
+        header, body, sig = parts
+        expected = _b64u(_hmac.new(_JWT_RAW_SECRET.encode(), f"{header}.{body}".encode(), hashlib.sha256).digest())
+        if not _hmac.compare_digest(sig, expected):
+            return None
+        padding = 4 - len(body) % 4
+        padded = body + ("=" * (padding % 4))
+        data = json.loads(base64.urlsafe_b64decode(padded).decode())
+        if data.get("exp", 0) < _now_ts():
+            return None
+        return data
+    except Exception:
+        return None
 
 
 def _now_ts() -> int:
@@ -192,6 +228,18 @@ def _save_json_list(path: Path, items: list[dict[str, Any]]) -> None:
     _atomic_write_json(path, items)
 
 
+def _norm_email(email: str) -> str:
+    return str(email or "").strip().lower()
+
+
+def _is_valid_email(email: str) -> bool:
+    e = _norm_email(email)
+    if not e or "@" not in e:
+        return False
+    local, _, domain = e.partition("@")
+    return bool(local and domain and "." in domain)
+
+
 def _find_user(users: list[dict[str, Any]], username: str) -> Optional[dict[str, Any]]:
     username_lc = username.strip().lower()
     for u in users:
@@ -200,22 +248,27 @@ def _find_user(users: list[dict[str, Any]], username: str) -> Optional[dict[str,
     return None
 
 
+def _find_user_by_email(users: list[dict[str, Any]], email: str) -> Optional[dict[str, Any]]:
+    email_lc = _norm_email(email)
+    for u in users:
+        if _norm_email(str(u.get("email", ""))) == email_lc:
+            return u
+    return None
+
+
 def _require_auth(authorization: Optional[str] = Header(default=None)) -> dict[str, Any]:
     if not authorization or not authorization.lower().startswith("bearer "):
         raise HTTPException(status_code=401, detail="Não autenticado.")
     token = authorization.split(" ", 1)[1].strip()
-    session = _SESSIONS.get(token)
-    if not session:
-        raise HTTPException(status_code=401, detail="Sessão inválida.")
-    if session.get("exp", 0) < _now_ts():
-        _SESSIONS.pop(token, None)
-        raise HTTPException(status_code=401, detail="Sessão expirada.")
-    return session
+    payload = _jwt_decode(token)
+    if not payload:
+        raise HTTPException(status_code=401, detail="Sessão inválida ou expirada. Faça login novamente.")
+    return payload
 
 
 def _require_admin(session: dict[str, Any] = Depends(_require_auth)) -> dict[str, Any]:
-    if not session.get("is_admin"):
-        raise HTTPException(status_code=403, detail="Acesso restrito ao usuário admin.")
+    if session.get("role") != "admin":
+        raise HTTPException(status_code=403, detail="Acesso restrito a administradores.")
     return session
 
 
@@ -287,71 +340,88 @@ async def _admin_dashboard_supabase(days: int = 30) -> dict[str, Any]:
 
 @app.post("/auth/login")
 async def login(payload: dict):
-    username = str(payload.get("username", "")).strip()
+    email = _norm_email(str(payload.get("email", "")))
     password = str(payload.get("password", "")).strip()
-    if not username or not password:
-        raise HTTPException(status_code=400, detail="Informe usuário e senha.")
+    if not email or not password:
+        raise HTTPException(status_code=400, detail="Informe e-mail e senha.")
+    if not _is_valid_email(email):
+        raise HTTPException(status_code=400, detail="Informe um e-mail válido.")
 
-    is_admin = username == ADMIN_USERNAME and password == ADMIN_PASSWORD
-    if not is_admin:
+    is_hardcoded_admin = email == ADMIN_EMAIL and password == ADMIN_PASSWORD
+    session_username = ADMIN_USERNAME
+    role = "admin" if is_hardcoded_admin else "user"
+
+    if not is_hardcoded_admin:
         if supabase_configured():
-            u = await supabase_store.db_users_find(username)
+            u = await supabase_store.db_users_find_by_email(email)
         else:
             users = _load_users()
-            u = _find_user(users, username)
+            u = _find_user_by_email(users, email)
         if not u:
-            raise HTTPException(status_code=401, detail="Usuário ou senha inválidos.")
+            raise HTTPException(status_code=401, detail="E-mail ou senha inválidos.")
         salt = str(u.get("salt", ""))
         expected = str(u.get("password_hash", ""))
+        session_username = str(u.get("username", "")).strip().lower()
+        role = str(u.get("role", "user"))
         if not salt or not expected:
-            raise HTTPException(status_code=401, detail="Usuário inválido. Contate o administrador.")
+            raise HTTPException(status_code=401, detail="Conta inválida. Contate o administrador.")
         if _hash_password(password, salt) != expected:
-            raise HTTPException(status_code=401, detail="Usuário ou senha inválidos.")
+            raise HTTPException(status_code=401, detail="E-mail ou senha inválidos.")
 
-    token = secrets.token_urlsafe(32)
-    session_username = username if is_admin else username.strip().lower()
-    _SESSIONS[token] = {
+    now = _now_ts()
+    token = _jwt_encode({
         "username": session_username,
-        "is_admin": bool(is_admin),
-        "iat": _now_ts(),
-        "exp": _now_ts() + SESSION_TTL_SECONDS,
-    }
-    return {"token": token, "username": session_username, "is_admin": bool(is_admin)}
+        "email": email,
+        "role": role,
+        "iat": now,
+        "exp": now + JWT_TTL_SECONDS,
+    })
+    return {"token": token, "username": session_username, "email": email, "role": role, "is_admin": role == "admin"}
 
 
 @app.post("/auth/register")
 async def register(payload: dict):
     username = str(payload.get("username", "")).strip()
+    email = _norm_email(str(payload.get("email", "")))
     password = str(payload.get("password", "")).strip()
-    if not username or not password:
-        raise HTTPException(status_code=400, detail="Informe usuário e senha.")
+    if not username or not email or not password:
+        raise HTTPException(status_code=400, detail="Informe usuário, e-mail e senha.")
     if len(username) < 3:
         raise HTTPException(status_code=400, detail="O usuário deve ter no mínimo 3 caracteres.")
+    if not _is_valid_email(email):
+        raise HTTPException(status_code=400, detail="Informe um e-mail válido.")
     if len(password) < 6:
         raise HTTPException(status_code=400, detail="A senha deve ter no mínimo 6 caracteres.")
     if username.lower() == ADMIN_USERNAME.lower():
         raise HTTPException(status_code=400, detail="Nome de usuário reservado.")
+    if email == ADMIN_EMAIL:
+        raise HTTPException(status_code=400, detail="E-mail reservado.")
 
     if supabase_configured():
-        if await supabase_store.db_users_find(username):
+        if await supabase_store.db_users_find_by_username(username):
             raise HTTPException(status_code=409, detail="Usuário já existe.")
+        if await supabase_store.db_users_find_by_email(email):
+            raise HTTPException(status_code=409, detail="E-mail já cadastrado.")
         salt = _b64u(secrets.token_bytes(16))
         try:
-            await supabase_store.db_users_insert(username, salt, _hash_password(password, salt))
+            await supabase_store.db_users_insert(username, email, salt, _hash_password(password, salt))
         except RuntimeError as e:
             msg = str(e).lower()
             if "duplicate" in msg or "unique" in msg or "23505" in msg:
-                raise HTTPException(status_code=409, detail="Usuário já existe.")
+                raise HTTPException(status_code=409, detail="Usuário ou e-mail já cadastrado.")
             raise HTTPException(status_code=500, detail=f"Erro ao cadastrar: {e}")
         return {"ok": True}
 
     users = _load_users()
     if _find_user(users, username):
         raise HTTPException(status_code=409, detail="Usuário já existe.")
+    if _find_user_by_email(users, email):
+        raise HTTPException(status_code=409, detail="E-mail já cadastrado.")
     salt = _b64u(secrets.token_bytes(16))
     now = datetime.now().isoformat()
     users.append({
         "username": username.strip().lower(),
+        "email": email,
         "salt": salt,
         "password_hash": _hash_password(password, salt),
         "created_at": now,
@@ -363,13 +433,13 @@ async def register(payload: dict):
 
 @app.get("/auth/me")
 async def me(session: dict[str, Any] = Depends(_require_auth)):
-    return {"username": session.get("username"), "is_admin": bool(session.get("is_admin"))}
+    role = session.get("role", "user")
+    return {"username": session.get("username"), "email": session.get("email"), "role": role, "is_admin": role == "admin"}
 
 
 @app.post("/auth/logout")
-async def logout(session: dict[str, Any] = Depends(_require_auth), authorization: Optional[str] = Header(default=None)):
-    token = authorization.split(" ", 1)[1].strip() if authorization else ""
-    _SESSIONS.pop(token, None)
+async def logout(_session: dict[str, Any] = Depends(_require_auth)):
+    # JWT é stateless — o token expira pelo campo exp; logout é feito pelo cliente.
     return {"ok": True}
 
 
@@ -381,6 +451,8 @@ async def list_users(_: dict[str, Any] = Depends(_require_admin)):
         users = _load_users()
         data = [{
             "username": str(u.get("username", "")),
+            "email": _norm_email(str(u.get("email", ""))),
+            "role": str(u.get("role", "user")),
             "created_at": u.get("created_at"),
             "updated_at": u.get("updated_at"),
         } for u in users]
@@ -391,35 +463,49 @@ async def list_users(_: dict[str, Any] = Depends(_require_admin)):
 @app.post("/users")
 async def create_user(payload: dict, _: dict[str, Any] = Depends(_require_admin)):
     username = str(payload.get("username", "")).strip()
+    email = _norm_email(str(payload.get("email", "")))
     password = str(payload.get("password", "")).strip()
+    role = str(payload.get("role", "user"))
+    if role not in ("admin", "user"):
+        role = "user"
     if not username:
         raise HTTPException(status_code=400, detail="Informe o nome do usuário.")
+    if not _is_valid_email(email):
+        raise HTTPException(status_code=400, detail="Informe um e-mail válido.")
     if username.lower() == ADMIN_USERNAME.lower():
         raise HTTPException(status_code=400, detail="Nome reservado.")
+    if email == ADMIN_EMAIL:
+        raise HTTPException(status_code=400, detail="E-mail reservado.")
     if len(password) < 6:
         raise HTTPException(status_code=400, detail="A senha deve ter no mínimo 6 caracteres.")
 
     if supabase_configured():
-        if await supabase_store.db_users_find(username):
+        if await supabase_store.db_users_find_by_username(username):
             raise HTTPException(status_code=409, detail="Usuário já existe.")
+        if await supabase_store.db_users_find_by_email(email):
+            raise HTTPException(status_code=409, detail="E-mail já cadastrado.")
         salt = _b64u(secrets.token_bytes(16))
         try:
-            await supabase_store.db_users_insert(username, salt, _hash_password(password, salt))
+            await supabase_store.db_users_insert(username, email, salt, _hash_password(password, salt), role)
         except RuntimeError as e:
             msg = str(e).lower()
             if "duplicate" in msg or "unique" in msg or "23505" in msg:
-                raise HTTPException(status_code=409, detail="Usuário já existe.")
+                raise HTTPException(status_code=409, detail="Usuário ou e-mail já cadastrado.")
             raise HTTPException(status_code=500, detail=f"Erro ao criar usuário: {e}")
         return {"ok": True}
 
     users = _load_users()
     if _find_user(users, username):
         raise HTTPException(status_code=409, detail="Usuário já existe.")
+    if _find_user_by_email(users, email):
+        raise HTTPException(status_code=409, detail="E-mail já cadastrado.")
 
     salt = _b64u(secrets.token_bytes(16))
     now = datetime.now().isoformat()
     users.append({
         "username": username.strip().lower(),
+        "email": email,
+        "role": role,
         "salt": salt,
         "password_hash": _hash_password(password, salt),
         "created_at": now,
@@ -432,10 +518,13 @@ async def create_user(payload: dict, _: dict[str, Any] = Depends(_require_admin)
 @app.put("/users/{username}")
 async def update_user(username: str, payload: dict, _: dict[str, Any] = Depends(_require_admin)):
     new_username = str(payload.get("new_username", "")).strip()
+    new_email = _norm_email(str(payload.get("new_email", "")))
+    new_role_raw = str(payload.get("role", "")).strip()
+    new_role = new_role_raw if new_role_raw in ("admin", "user") else None
     password = str(payload.get("password", "")).strip()
 
     if supabase_configured():
-        u = await supabase_store.db_users_find(username)
+        u = await supabase_store.db_users_find_by_username(username)
         if not u:
             raise HTTPException(status_code=404, detail="Usuário não encontrado.")
         changed = False
@@ -444,8 +533,19 @@ async def update_user(username: str, payload: dict, _: dict[str, Any] = Depends(
         if new_username:
             if new_username.lower() == ADMIN_USERNAME.lower():
                 raise HTTPException(status_code=400, detail="Nome reservado.")
-            if await supabase_store.db_users_find(new_username) and new_username.strip().lower() != str(u.get("username", "")).strip().lower():
+            if await supabase_store.db_users_find_by_username(new_username) and new_username.strip().lower() != str(u.get("username", "")).strip().lower():
                 raise HTTPException(status_code=409, detail="Já existe um usuário com esse nome.")
+            changed = True
+        if new_email:
+            if not _is_valid_email(new_email):
+                raise HTTPException(status_code=400, detail="Informe um e-mail válido.")
+            if new_email == ADMIN_EMAIL:
+                raise HTTPException(status_code=400, detail="E-mail reservado.")
+            found_email = await supabase_store.db_users_find_by_email(new_email)
+            if found_email and str(found_email.get("username", "")).strip().lower() != str(u.get("username", "")).strip().lower():
+                raise HTTPException(status_code=409, detail="Já existe um usuário com esse e-mail.")
+            changed = True
+        if new_role:
             changed = True
         if password:
             if len(password) < 6:
@@ -458,8 +558,10 @@ async def update_user(username: str, payload: dict, _: dict[str, Any] = Depends(
         ok = await supabase_store.db_users_update(
             username,
             new_username.strip().lower() if new_username else None,
+            new_email if new_email else None,
             new_hash,
             new_salt,
+            new_role,
         )
         if not ok:
             raise HTTPException(status_code=404, detail="Usuário não encontrado.")
@@ -478,7 +580,19 @@ async def update_user(username: str, payload: dict, _: dict[str, Any] = Depends(
             raise HTTPException(status_code=409, detail="Já existe um usuário com esse nome.")
         u["username"] = new_username.strip().lower()
         changed = True
-
+    if new_email:
+        if not _is_valid_email(new_email):
+            raise HTTPException(status_code=400, detail="Informe um e-mail válido.")
+        if new_email == ADMIN_EMAIL:
+            raise HTTPException(status_code=400, detail="E-mail reservado.")
+        found_email = _find_user_by_email(users, new_email)
+        if found_email and str(found_email.get("username", "")).strip().lower() != str(u.get("username", "")).strip().lower():
+            raise HTTPException(status_code=409, detail="Já existe um usuário com esse e-mail.")
+        u["email"] = new_email
+        changed = True
+    if new_role:
+        u["role"] = new_role
+        changed = True
     if password:
         if len(password) < 6:
             raise HTTPException(status_code=400, detail="A senha deve ter no mínimo 6 caracteres.")

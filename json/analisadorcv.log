@@ -1,0 +1,1 @@
+2026-05-09 12:29:26,404 | WARNING | Supabase HTTP 400 em GET app_users: {'code': '42703', 'details': None, 'hint': None, 'message': 'column app_users.email does not exist'}

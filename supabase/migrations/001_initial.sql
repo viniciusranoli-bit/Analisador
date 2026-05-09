@@ -9,6 +9,7 @@
 CREATE TABLE IF NOT EXISTS public.app_users (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   username text NOT NULL UNIQUE,
+  email text NOT NULL UNIQUE,
   salt text NOT NULL,
   password_hash text NOT NULL,
   created_at timestamptz NOT NULL DEFAULT now(),
@@ -16,6 +17,7 @@ CREATE TABLE IF NOT EXISTS public.app_users (
 );
 
 CREATE INDEX IF NOT EXISTS idx_app_users_username_lower ON public.app_users (lower(username));
+CREATE INDEX IF NOT EXISTS idx_app_users_email_lower ON public.app_users (lower(email));
 
 -- Histórico de análises (payload completo em JSON)
 CREATE TABLE IF NOT EXISTS public.historico_analises (
