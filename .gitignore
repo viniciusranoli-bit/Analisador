@@ -1,4 +1,5 @@
 .env
+monitor/monitor.config.local.env
 .venv/
 venv/
 __pycache__/

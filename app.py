@@ -26,6 +26,7 @@ from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
+import httpx
 
 load_dotenv(override=True)
 
@@ -88,7 +89,9 @@ def _ensure_json_file_log_handler() -> Path:
     return _JSON_LOG_REL
 
 
-app = FastAPI(title="Analisador de LinkedIn", version="1.1.0")
+APP_VERSION = "1.1.0"
+
+app = FastAPI(title="Analisador de LinkedIn", version=APP_VERSION)
 
 
 @app.on_event("startup")
@@ -138,7 +141,7 @@ if STATIC_DIR.exists():
 # Credenciais admin — lidas do ambiente (nunca hardcoded em produção)
 ADMIN_USERNAME = "admin"
 ADMIN_EMAIL = os.getenv("ADMIN_EMAIL", "admin@analisadorcv.local").strip().lower()
-ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "Mariana970").strip()
+ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", ADMIN_EMAIL).strip()
 
 # JWT stateless — não precisa de estado em memória (funciona em serverless)
 _JWT_RAW_SECRET = os.getenv("JWT_SECRET", "").strip()
@@ -764,6 +767,60 @@ Gere a análise completa conforme estrutura JSON definida."""
 # ─────────────────────────────────────────────
 # ENDPOINTS
 # ─────────────────────────────────────────────
+
+@app.get("/health")
+async def health():
+    """Liveness probe — confirma que o processo HTTP está ativo."""
+    return {
+        "status": "ok",
+        "service": "analisador-linkedin",
+        "version": APP_VERSION,
+    }
+
+
+@app.get("/ready")
+async def ready():
+    """Readiness probe — valida dependências críticas para operação normal."""
+    checks: dict[str, str] = {}
+    ok = True
+
+    openai_key = os.getenv("OPENAI_API_KEY", "").strip()
+    checks["openai_api_key"] = "ok" if openai_key else "missing"
+    if not openai_key:
+        ok = False
+
+    jwt_secret = os.getenv("JWT_SECRET", "").strip()
+    checks["jwt_secret"] = "ok" if jwt_secret else "ephemeral"
+
+    if supabase_configured():
+        supabase_url = os.getenv("SUPABASE_URL", "").strip().rstrip("/")
+        service_key = os.getenv("SUPABASE_SERVICE_ROLE_KEY", "").strip()
+        try:
+            async with httpx.AsyncClient(timeout=5.0) as client:
+                response = await client.get(
+                    f"{supabase_url}/rest/v1/",
+                    headers={"apikey": service_key},
+                )
+            if response.status_code >= 500:
+                checks["supabase"] = f"http_{response.status_code}"
+                ok = False
+            else:
+                checks["supabase"] = "ok"
+        except httpx.RequestError:
+            checks["supabase"] = "unreachable"
+            ok = False
+        checks["persistence"] = "supabase"
+    else:
+        checks["supabase"] = "not_configured"
+        checks["persistence"] = "json_local"
+
+    payload = {
+        "status": "ready" if ok else "not_ready",
+        "version": APP_VERSION,
+        "checks": checks,
+    }
+    return JSONResponse(status_code=200 if ok else 503, content=payload)
+
 
 @app.get("/", response_class=HTMLResponse)
 async def landing():

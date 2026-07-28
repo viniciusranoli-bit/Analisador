@@ -1,0 +1,51 @@
+# Smoke tests sintéticos (Fase 0 + Fase 1).
+# Cron deve espelhar MONITOR_SMOKE_CRON em monitor/monitor.config.env
+name: Synthetic Smoke Monitor
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+
+jobs:
+  validate-schedule:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validar sincronização do cron
+        run: python monitor/scripts/check_schedule_sync.py
+
+  smoke:
+    needs: validate-schedule
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Instalar dependências do monitor
+        run: pip install -r monitor/requirements.txt
+
+      - name: Carregar configuração padrão
+        run: |
+          set -a
+          source monitor/monitor.config.env
+          set +a
+          echo "MONITOR_BASE_URL=${MONITOR_BASE_URL}" >> "$GITHUB_ENV"
+          echo "MONITOR_HTTP_TIMEOUT_SECONDS=${MONITOR_HTTP_TIMEOUT_SECONDS}" >> "$GITHUB_ENV"
+          echo "MONITOR_L1_MAX_LATENCY_MS=${MONITOR_L1_MAX_LATENCY_MS}" >> "$GITHUB_ENV"
+          echo "MONITOR_RETRY_COUNT=${MONITOR_RETRY_COUNT}" >> "$GITHUB_ENV"
+          echo "MONITOR_ALERT_FAILURE_THRESHOLD=${MONITOR_ALERT_FAILURE_THRESHOLD}" >> "$GITHUB_ENV"
+          echo "MONITOR_SMOKE_CRON=${MONITOR_SMOKE_CRON}" >> "$GITHUB_ENV"
+
+      - name: Executar smoke tests
+        working-directory: monitor
+        env:
+          MONITOR_E2E_EMAIL: ${{ secrets.MONITOR_E2E_EMAIL }}
+          MONITOR_E2E_PASSWORD: ${{ secrets.MONITOR_E2E_PASSWORD }}
+        run: python scripts/run_smoke.py

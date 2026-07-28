@@ -863,45 +863,220 @@ textarea { resize: vertical; min-height: 80px; }
 
 /* ─── LOGIN ─── */
 .login-screen {
-  display: none;
   position: fixed;
   inset: 0;
   z-index: 600;
-  background: rgba(10,22,40,.78);
-  backdrop-filter: blur(4px);
+  display: none;
   align-items: center;
   justify-content: center;
-  padding: 24px;
+  padding: 32px;
+  background:
+    radial-gradient(circle at 12% 18%, rgba(0,196,240,.18), transparent 30%),
+    radial-gradient(circle at 88% 82%, rgba(0,119,181,.22), transparent 36%),
+    #071321;
+  overflow-y: auto;
 }
 .login-screen.active { display: flex; }
 .login-card {
   width: 100%;
-  max-width: 430px;
+  max-width: 920px;
   background: var(--white);
-  border-radius: 14px;
-  box-shadow: 0 20px 60px rgba(0,0,0,.35);
+  border: 1px solid rgba(255,255,255,.16);
+  border-radius: 20px;
+  box-shadow: 0 28px 80px rgba(0,0,0,.42);
+  display: grid;
+  grid-template-columns: minmax(280px, .92fr) minmax(360px, 1.08fr);
   overflow: hidden;
 }
 .login-head {
-  background: var(--navy);
+  background:
+    linear-gradient(145deg, rgba(0,196,240,.18), transparent 46%),
+    var(--navy);
   color: var(--white);
-  padding: 20px 22px;
+  padding: 48px 42px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 500px;
+  position: relative;
+}
+.login-head::after {
+  content: '';
+  position: absolute;
+  right: -90px;
+  bottom: -100px;
+  width: 280px;
+  height: 280px;
+  border: 1px solid rgba(0,196,240,.18);
+  border-radius: 50%;
+  box-shadow: 0 0 0 28px rgba(0,196,240,.04), 0 0 0 58px rgba(0,196,240,.025);
+}
+.login-brand {
+  position: relative;
+  z-index: 1;
+}
+.login-brand-mark {
+  width: 46px;
+  height: 46px;
+  margin-bottom: 28px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--blue), var(--accent));
+  display: grid;
+  place-items: center;
+  box-shadow: 0 10px 24px rgba(0,196,240,.2);
+}
+.login-brand-mark svg { width: 25px; height: 25px; }
+.login-eyebrow {
+  color: var(--accent);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  margin-bottom: 12px;
 }
 .login-head h2 {
   font-family: 'Playfair Display', Georgia, serif;
-  font-size: 18px;
+  font-size: clamp(26px, 3vw, 34px);
+  line-height: 1.12;
+  letter-spacing: -.02em;
+  max-width: 280px;
 }
-.login-body { padding: 22px; }
+.login-head p {
+  color: rgba(255,255,255,.68);
+  font-size: 14px;
+  line-height: 1.65;
+  margin-top: 16px;
+  max-width: 300px;
+}
+.login-value-list {
+  list-style: none;
+  display: grid;
+  gap: 14px;
+  position: relative;
+  z-index: 1;
+}
+.login-value-list li {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  color: rgba(255,255,255,.78);
+  font-size: 12px;
+  line-height: 1.45;
+}
+.login-value-list li::before {
+  content: '✓';
+  color: var(--accent);
+  font-weight: 700;
+}
+.login-body {
+  padding: 48px 48px 42px;
+  background: var(--white);
+}
+.login-form-intro {
+  margin-bottom: 30px;
+}
+.login-form-intro h3 {
+  color: var(--navy);
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 24px;
+  margin-bottom: 7px;
+}
+.login-form-intro p {
+  color: var(--gray-500);
+  font-size: 13px;
+  line-height: 1.55;
+}
+.login-body .field { margin-bottom: 22px; }
+.login-body label { font-size: 12px; letter-spacing: .02em; }
+.login-body input[type="email"],
+.login-body input[type="password"],
+.login-body input[type="text"] {
+  display: block;
+  width: 100%;
+  max-width: none;
+  min-height: 48px;
+  padding: 13px 14px;
+  background: var(--white);
+  border-color: #d5deea;
+}
+.login-body #login-email,
+.login-body #login-password {
+  width: 100%;
+}
+.login-body input::placeholder { color: #9aa8ba; }
+.login-body input[type="email"]:focus,
+.login-body input[type="password"]:focus,
+.login-body input[type="text"]:focus {
+  border-color: var(--blue);
+  box-shadow: 0 0 0 4px rgba(0,119,181,.12);
+}
 .login-row { margin-top: 12px; }
 .password-wrap {
-  display: flex;
-  gap: 8px;
+  position: relative;
 }
 .password-wrap input {
-  flex: 1;
+  width: 100%;
+  padding-right: 82px !important;
 }
 .password-toggle {
-  min-width: 88px;
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  min-width: 70px;
+  min-height: 36px;
+  padding: 7px 10px;
+}
+.login-row .btn-primary,
+.login-row .btn-success {
+  min-height: 48px;
+  justify-content: center;
+  flex: 1;
+}
+.login-row .btn-primary {
+  background: linear-gradient(135deg, var(--blue), var(--blue-bright));
+  border-color: transparent;
+  color: var(--white);
+  box-shadow: 0 6px 16px rgba(0,119,181,.24);
+}
+.login-row .btn-primary:hover {
+  background: linear-gradient(135deg, #00689f, var(--blue));
+  color: var(--white);
+  border-color: transparent;
+  box-shadow: 0 8px 20px rgba(0,119,181,.3);
+}
+.login-row .btn-outline {
+  min-height: 48px;
+  justify-content: center;
+}
+.login-secure-note {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--gray-500);
+  font-size: 11px;
+  line-height: 1.4;
+  margin-top: 22px;
+}
+.login-secure-note svg { color: var(--success); flex: 0 0 auto; }
+@media (max-width: 700px) {
+  .login-screen { padding: 16px; }
+  .login-card {
+    max-width: 500px;
+    display: block;
+  }
+  .login-head {
+    min-height: auto;
+    padding: 28px 26px 26px;
+  }
+  .login-brand-mark { margin-bottom: 20px; }
+  .login-head h2 { font-size: 28px; }
+  .login-head p { margin-top: 10px; }
+  .login-value-list { display: none; }
+  .login-body { padding: 30px 26px 28px; }
+}
+@media (max-width: 420px) {
+  .login-row { flex-direction: column; }
+  .login-row .btn { width: 100%; }
 }
 
 /* ─── USERS ADMIN ─── */
@@ -1001,18 +1176,37 @@ select.select:focus { outline: none; border-color: var(--blue); }
 <div class="login-screen" id="login-screen">
   <div class="login-card">
     <div class="login-head">
-      <h2 id="login-title">Entrar no sistema</h2>
+      <div class="login-brand">
+        <div class="login-brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 17.5 9.5 12 13 15.5 20 8"/>
+            <path d="M15.5 8H20v4.5"/>
+          </svg>
+        </div>
+        <div class="login-eyebrow">Analisador de LinkedIn</div>
+        <h2 id="login-title">Entrar no sistema</h2>
+        <p>Transforme o seu perfil profissional em uma presença clara, estratégica e pronta para novas oportunidades.</p>
+      </div>
+      <ul class="login-value-list" aria-label="Benefícios da plataforma">
+        <li>Diagnóstico executivo orientado por dados</li>
+        <li>Recomendações práticas para o próximo passo</li>
+        <li>Histórico para acompanhar a sua evolução</li>
+      </ul>
     </div>
     <div class="login-body">
       <div id="login-form-panel">
-        <div class="field">
-          <label>E-mail</label>
-          <input type="email" id="login-email" placeholder="Digite seu e-mail" autocomplete="email" />
+        <div class="login-form-intro">
+          <h3>Bem-vindo</h3>
+          <p>Acesse seu espaço de análise profissional.</p>
         </div>
         <div class="field">
-          <label>Senha</label>
+          <label for="login-email">E-mail profissional</label>
+          <input type="email" id="login-email" placeholder="nome@empresa.com" autocomplete="email" />
+        </div>
+        <div class="field">
+          <label for="login-password">Senha</label>
           <div class="password-wrap">
-            <input type="password" id="login-password" placeholder="Digite sua senha" />
+            <input type="password" id="login-password" placeholder="Digite sua senha" autocomplete="current-password" />
             <button type="button" class="btn btn-outline btn-sm password-toggle" onclick="togglePassword('login-password', this)">Mostrar</button>
           </div>
         </div>
@@ -1020,25 +1214,36 @@ select.select:focus { outline: none; border-color: var(--blue); }
           <button class="btn btn-primary" id="btn-login" onclick="doLogin()">Entrar</button>
           <button type="button" class="btn btn-outline btn-sm" id="btn-show-register" onclick="showRegisterPanel()">Criar conta</button>
         </div>
+        <div class="login-secure-note">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="5" y="10" width="14" height="10" rx="2"/>
+            <path d="M8 10V7a4 4 0 0 1 8 0v3"/>
+          </svg>
+          Seus dados profissionais são tratados com privacidade e segurança.
+        </div>
       </div>
       <div id="register-form-panel" style="display:none;">
+        <div class="login-form-intro">
+          <h3>Crie o seu acesso</h3>
+          <p>Comece a construir um posicionamento profissional mais forte.</p>
+        </div>
         <div class="field">
-          <label>Novo usuário</label>
+          <label for="reg-username">Nome de usuário</label>
           <input type="text" id="reg-username" placeholder="mínimo 3 caracteres" autocomplete="username" />
         </div>
         <div class="field">
-          <label>E-mail</label>
+          <label for="reg-email">E-mail profissional</label>
           <input type="email" id="reg-email" placeholder="seu@email.com" autocomplete="email" />
         </div>
         <div class="field">
-          <label>Senha</label>
+          <label for="reg-password">Senha</label>
           <div class="password-wrap">
             <input type="password" id="reg-password" placeholder="mínimo 6 caracteres" autocomplete="new-password" />
             <button type="button" class="btn btn-outline btn-sm password-toggle" onclick="togglePassword('reg-password', this)">Mostrar</button>
           </div>
         </div>
         <div class="field">
-          <label>Confirmar senha</label>
+          <label for="reg-password2">Confirmar senha</label>
           <div class="password-wrap">
             <input type="password" id="reg-password2" placeholder="repita a senha" autocomplete="new-password" />
             <button type="button" class="btn btn-outline btn-sm password-toggle" onclick="togglePassword('reg-password2', this)">Mostrar</button>
@@ -1122,14 +1327,14 @@ select.select:focus { outline: none; border-color: var(--blue); }
             <h3>Pacote oficial de exportação (.zip)</h3>
             <p class="upload-lead">
               A análise executiva baseia-se no conjunto de dados que o LinkedIn disponibiliza no processo de cópia da conta.
-              Envie exclusivamente o ficheiro <strong>.zip</strong> recebido após o pedido — é ele que contém o perfil, experiências e indicadores necessários a um diagnóstico completo.
+              Envie exclusivamente o arquivo <strong>.zip</strong> recebido após o pedido — é ele que contém o perfil, experiências e indicadores necessários para um diagnóstico completo.
             </p>
           </div>
           <div class="upload-zone" id="upload-zone" onclick="document.getElementById('file-input').click()">
             <input type="file" id="file-input" accept=".zip" onchange="onFileChange(this)" />
             <div class="upload-icon" id="upload-icon">📂</div>
             <div class="upload-title" id="upload-title">Arraste o .zip ou clique para selecionar</div>
-            <div class="upload-sub">Ficheiro único exportado pelo LinkedIn (não descompacte antes do envio)</div>
+            <div class="upload-sub">Arquivo único exportado pelo LinkedIn (não descompacte antes do envio)</div>
             <div class="upload-filename" id="upload-filename"></div>
           </div>
           <ol class="upload-exec-steps">
@@ -1290,7 +1495,7 @@ select.select:focus { outline: none; border-color: var(--blue); }
               <textarea id="feature-suggestion" rows="3" placeholder="Sugira uma nova funcionalidade para melhorar o sistema..."></textarea>
               <div style="margin-top:10px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
                 <button class="btn btn-outline btn-sm" onclick="enviarSugestao()">Enviar sugestão</button>
-                <span class="suggestion-note">Sua sugestão fica registrada para análise da equipe.</span>
+                <span class="suggestion-note">Sua sugestão ficará registrada para análise da equipe.</span>
               </div>
             </div>
           </div>
@@ -1322,7 +1527,7 @@ select.select:focus { outline: none; border-color: var(--blue); }
                 <th>Link</th>
                 <th>Avaliação</th>
                 <th>Referência da análise</th>
-                <th>Registado em</th>
+                <th>Registrado em</th>
               </tr>
             </thead>
             <tbody id="artigos-avaliados-tbody"></tbody>
@@ -1349,18 +1554,18 @@ select.select:focus { outline: none; border-color: var(--blue); }
     <div class="view" id="view-admin-dashboard">
       <div class="section-header">
         <h1>Dashboard</h1>
-        <p>Utilizadores novos na janela indicada e volume de análises (pesquisas) por conta.</p>
+        <p>Novos usuários no período indicado e volume de análises por conta.</p>
       </div>
       <div id="admin-dash-empty" class="muted">Carregando...</div>
       <div class="insights-grid" id="admin-dash-kpis" style="display:none;"></div>
       <div class="form-card form-card-full" style="margin-top:24px;">
-        <h3>Análises por utilizador</h3>
-        <p class="muted" style="font-size:13px;margin-top:6px;">Contagem de análises guardadas no histórico por utilizador.</p>
+        <h3>Análises por usuário</h3>
+        <p class="muted" style="font-size:13px;margin-top:6px;">Contagem de análises salvas no histórico por usuário.</p>
         <div class="admin-scroll" style="margin-top:12px;">
           <table class="table" id="admin-dash-table" style="display:none;">
             <thead>
               <tr>
-                <th>Utilizador</th>
+                <th>Usuário</th>
                 <th>Análises</th>
               </tr>
             </thead>
@@ -1748,7 +1953,7 @@ function onFileChange(input) {
   const file = input.files[0];
   if (!file) return;
   document.getElementById('upload-icon').textContent = '✅';
-  document.getElementById('upload-title').textContent = 'Ficheiro selecionado';
+  document.getElementById('upload-title').textContent = 'Arquivo selecionado';
   document.getElementById('upload-filename').textContent = file.name;
   document.getElementById('upload-zone').classList.add('has-file');
 }
@@ -2135,7 +2340,7 @@ async function loadArtigosLidos() {
       return;
     }
     if (!Array.isArray(itens) || !itens.length) {
-      empty.textContent = 'Ainda não há artigos avaliados. Após uma análise, registe o feedback nos artigos recomendados e guarde.';
+      empty.textContent = 'Ainda não há artigos avaliados. Após uma análise, registre o feedback nos artigos recomendados e salve.';
       return;
     }
     empty.style.display = 'none';
@@ -2188,13 +2393,13 @@ async function loadAdminDashboard() {
     grid.style.display = 'grid';
     const dias = Number(d.periodo_dias_novos_usuarios || 30);
     grid.innerHTML = `
-      <div class="insight-item"><div class="insight-label">Novos utilizadores (${dias} dias)</div><div class="insight-value">${Number(d.novos_usuarios || 0)}</div></div>
-      <div class="insight-item"><div class="insight-label">Total de utilizadores</div><div class="insight-value">${Number(d.total_usuarios || 0)}</div></div>
+      <div class="insight-item"><div class="insight-label">Novos usuários (${dias} dias)</div><div class="insight-value">${Number(d.novos_usuarios || 0)}</div></div>
+      <div class="insight-item"><div class="insight-label">Total de usuários</div><div class="insight-value">${Number(d.total_usuarios || 0)}</div></div>
       <div class="insight-item"><div class="insight-label">Total de análises</div><div class="insight-value">${Number(d.total_analises || 0)}</div></div>
     `;
     const rows = Array.isArray(d.analises_por_usuario) ? d.analises_por_usuario : [];
     if (!rows.length) {
-      tbody.innerHTML = '<tr><td colspan="2" class="muted">Sem análises registadas.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="2" class="muted">Sem análises registradas.</td></tr>';
     } else {
       tbody.innerHTML = rows.map((r) => `
         <tr>
