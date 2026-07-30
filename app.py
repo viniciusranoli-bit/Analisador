@@ -28,7 +28,16 @@ from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 import httpx
 
-load_dotenv(override=True)
+_APP_DIR = Path(__file__).resolve().parent
+
+
+def _load_app_env_files() -> None:
+    """Carrega .env da raiz do repositório e, em seguida, de Analisador/ (override)."""
+    load_dotenv(_APP_DIR.parent / ".env", override=False)
+    load_dotenv(_APP_DIR / ".env", override=True)
+
+
+_load_app_env_files()
 
 import openai
 
@@ -41,6 +50,17 @@ logger = logging.getLogger("analisadorcv")
 def _is_vercel_runtime() -> bool:
     """Na Vercel o filesystem do runtime é só leitura exceto o diretório temporário."""
     return bool(os.getenv("VERCEL"))
+
+
+def _app_env() -> str:
+    explicit = os.getenv("APP_ENV", "").strip().lower()
+    if explicit:
+        return explicit
+    return "production" if _is_vercel_runtime() else "development"
+
+
+def _is_non_production_env() -> bool:
+    return _app_env() not in ("production", "prod")
 
 
 def _data_root() -> Path:
@@ -100,6 +120,12 @@ async def _log_persistencia_startup() -> None:
     from urllib.parse import urlparse
 
     log_file = _ensure_json_file_log_handler()
+    logger.info("Ambiente: %s", _app_env())
+    if _env_admin_enabled():
+        logger.warning(
+            "Admin de teste via .env ativo (somente fora de produção). "
+            "Em produção, use conta com role=admin no Supabase."
+        )
     logger.info("Ficheiro de log: %s", log_file.resolve())
 
     url_raw = (os.getenv("SUPABASE_URL") or "").strip()
@@ -138,10 +164,39 @@ STATIC_DIR = Path("static")
 if STATIC_DIR.exists():
     app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 
-# Credenciais admin — lidas do ambiente (nunca hardcoded em produção)
 ADMIN_USERNAME = "admin"
-ADMIN_EMAIL = os.getenv("ADMIN_EMAIL", "admin@analisadorcv.local").strip().lower()
-ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", ADMIN_EMAIL).strip()
+
+
+def _env_admin_credentials() -> Optional[tuple[str, str]]:
+    """Login/senha de admin via .env — apenas fora de produção."""
+    if not _is_non_production_env():
+        return None
+    login = _norm_email(os.getenv("ADMIN_EMAIL", ""))
+    password = os.getenv("ADMIN_PASSWORD", "").strip()
+    if not login or not password:
+        return None
+    return login, password
+
+
+def _env_admin_enabled() -> bool:
+    return _env_admin_credentials() is not None
+
+
+def _is_env_admin_login(login: str, password: str) -> bool:
+    creds = _env_admin_credentials()
+    if not creds:
+        return False
+    expected_login, expected_password = creds
+    if _norm_email(login) != expected_login:
+        return False
+    return _hmac.compare_digest(password, expected_password)
+
+
+def _is_reserved_env_admin_login(login: str) -> bool:
+    creds = _env_admin_credentials()
+    if not creds:
+        return False
+    return _norm_email(login) == creds[0]
 
 # JWT stateless — não precisa de estado em memória (funciona em serverless)
 _JWT_RAW_SECRET = os.getenv("JWT_SECRET", "").strip()
@@ -343,23 +398,24 @@ async def _admin_dashboard_supabase(days: int = 30) -> dict[str, Any]:
 
 @app.post("/auth/login")
 async def login(payload: dict):
-    email = _norm_email(str(payload.get("email", "")))
+    login_id = _norm_email(str(payload.get("email", "")))
     password = str(payload.get("password", "")).strip()
-    if not email or not password:
+    if not login_id or not password:
         raise HTTPException(status_code=400, detail="Informe e-mail e senha.")
-    if not _is_valid_email(email):
+
+    is_env_admin = _is_env_admin_login(login_id, password)
+    if not is_env_admin and not _is_valid_email(login_id):
         raise HTTPException(status_code=400, detail="Informe um e-mail válido.")
 
-    is_hardcoded_admin = email == ADMIN_EMAIL and password == ADMIN_PASSWORD
     session_username = ADMIN_USERNAME
-    role = "admin" if is_hardcoded_admin else "user"
+    role = "admin" if is_env_admin else "user"
 
-    if not is_hardcoded_admin:
+    if not is_env_admin:
         if supabase_configured():
-            u = await supabase_store.db_users_find_by_email(email)
+            u = await supabase_store.db_users_find_by_email(login_id)
         else:
             users = _load_users()
-            u = _find_user_by_email(users, email)
+            u = _find_user_by_email(users, login_id)
         if not u:
             raise HTTPException(status_code=401, detail="E-mail ou senha inválidos.")
         salt = str(u.get("salt", ""))
@@ -371,15 +427,16 @@ async def login(payload: dict):
         if _hash_password(password, salt) != expected:
             raise HTTPException(status_code=401, detail="E-mail ou senha inválidos.")
 
+    session_email = login_id if _is_valid_email(login_id) else f"{login_id}@local.test"
     now = _now_ts()
     token = _jwt_encode({
         "username": session_username,
-        "email": email,
+        "email": session_email,
         "role": role,
         "iat": now,
         "exp": now + JWT_TTL_SECONDS,
     })
-    return {"token": token, "username": session_username, "email": email, "role": role, "is_admin": role == "admin"}
+    return {"token": token, "username": session_username, "email": session_email, "role": role, "is_admin": role == "admin"}
 
 
 @app.post("/auth/register")
@@ -397,7 +454,7 @@ async def register(payload: dict):
         raise HTTPException(status_code=400, detail="A senha deve ter no mínimo 6 caracteres.")
     if username.lower() == ADMIN_USERNAME.lower():
         raise HTTPException(status_code=400, detail="Nome de usuário reservado.")
-    if email == ADMIN_EMAIL:
+    if _is_reserved_env_admin_login(email):
         raise HTTPException(status_code=400, detail="E-mail reservado.")
 
     if supabase_configured():
@@ -477,7 +534,7 @@ async def create_user(payload: dict, _: dict[str, Any] = Depends(_require_admin)
         raise HTTPException(status_code=400, detail="Informe um e-mail válido.")
     if username.lower() == ADMIN_USERNAME.lower():
         raise HTTPException(status_code=400, detail="Nome reservado.")
-    if email == ADMIN_EMAIL:
+    if _is_reserved_env_admin_login(email):
         raise HTTPException(status_code=400, detail="E-mail reservado.")
     if len(password) < 6:
         raise HTTPException(status_code=400, detail="A senha deve ter no mínimo 6 caracteres.")
@@ -542,7 +599,7 @@ async def update_user(username: str, payload: dict, _: dict[str, Any] = Depends(
         if new_email:
             if not _is_valid_email(new_email):
                 raise HTTPException(status_code=400, detail="Informe um e-mail válido.")
-            if new_email == ADMIN_EMAIL:
+            if _is_reserved_env_admin_login(new_email):
                 raise HTTPException(status_code=400, detail="E-mail reservado.")
             found_email = await supabase_store.db_users_find_by_email(new_email)
             if found_email and str(found_email.get("username", "")).strip().lower() != str(u.get("username", "")).strip().lower():
@@ -586,7 +643,7 @@ async def update_user(username: str, payload: dict, _: dict[str, Any] = Depends(
     if new_email:
         if not _is_valid_email(new_email):
             raise HTTPException(status_code=400, detail="Informe um e-mail válido.")
-        if new_email == ADMIN_EMAIL:
+        if _is_reserved_env_admin_login(new_email):
             raise HTTPException(status_code=400, detail="E-mail reservado.")
         found_email = _find_user_by_email(users, new_email)
         if found_email and str(found_email.get("username", "")).strip().lower() != str(u.get("username", "")).strip().lower():
@@ -842,6 +899,7 @@ async def app_ui():
 async def analisar(
     session: dict[str, Any] = Depends(_require_auth),
     arquivo: UploadFile = File(...),
+    arquivo_2: Optional[UploadFile] = File(None),
     especialidade: str = Form(...),
     senioridade: str = Form(...),
     objetivo: str = Form(...),
@@ -852,17 +910,26 @@ async def analisar(
     if not api_key:
         raise HTTPException(status_code=400, detail="OPENAI_API_KEY não configurada. Verifique seu arquivo .env")
 
-    if not arquivo.filename.endswith(".zip"):
-        raise HTTPException(status_code=400, detail="Envie o arquivo .zip exportado do LinkedIn.")
+    arquivos = [arquivo] + ([arquivo_2] if arquivo_2 else [])
+    dados: dict[str, list[dict[str, Any]]] = {}
+    for arquivo_atual in arquivos:
+        nome = (arquivo_atual.filename or "").lower()
+        if not nome.endswith(".zip"):
+            raise HTTPException(status_code=400, detail="Envie somente arquivos .zip exportados do LinkedIn.")
 
-    zip_bytes = await arquivo.read()
-    if len(zip_bytes) == 0:
-        raise HTTPException(status_code=400, detail="Arquivo ZIP vazio.")
+        zip_bytes = await arquivo_atual.read()
+        if len(zip_bytes) == 0:
+            raise HTTPException(status_code=400, detail=f"O arquivo {arquivo_atual.filename} está vazio.")
 
-    try:
-        dados = extrair_zip_linkedin(zip_bytes)
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=f"Erro ao ler ZIP: {str(e)}")
+        try:
+            dados_arquivo = extrair_zip_linkedin(zip_bytes)
+        except Exception as e:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Erro ao ler o arquivo {arquivo_atual.filename}: {str(e)}",
+            )
+        for chave, registros in dados_arquivo.items():
+            dados.setdefault(chave, []).extend(registros)
 
     dados_formatados = formatar_dados_para_prompt(dados)
     user_prompt = construir_user_prompt(dados_formatados, especialidade, senioridade, objetivo, cargo_alvo, contexto)

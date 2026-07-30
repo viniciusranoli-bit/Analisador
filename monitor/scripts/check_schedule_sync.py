@@ -9,39 +9,44 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 CONFIG_FILE = ROOT / "monitor" / "monitor.config.env"
-WORKFLOW_FILE = ROOT / ".github" / "workflows" / "synthetic-smoke.yml"
+WORKFLOWS = {
+    "MONITOR_SMOKE_CRON": ROOT / ".github" / "workflows" / "synthetic-smoke.yml",
+    "MONITOR_DEEP_CRON": ROOT / ".github" / "workflows" / "synthetic-deep.yml",
+}
 
 
-def _read_config_cron() -> str:
+def _read_config_cron(name: str) -> str:
     for line in CONFIG_FILE.read_text(encoding="utf-8").splitlines():
         stripped = line.strip()
         if stripped.startswith("#") or not stripped:
             continue
-        if stripped.startswith("MONITOR_SMOKE_CRON="):
+        if stripped.startswith(f"{name}="):
             return stripped.split("=", 1)[1].strip().strip('"').strip("'")
-    raise RuntimeError("MONITOR_SMOKE_CRON não encontrado em monitor/monitor.config.env")
+    raise RuntimeError(f"{name} não encontrado em monitor/monitor.config.env")
 
 
-def _read_workflow_cron() -> str:
-    content = WORKFLOW_FILE.read_text(encoding="utf-8")
+def _read_workflow_cron(workflow_file: Path) -> str:
+    content = workflow_file.read_text(encoding="utf-8")
     match = re.search(r"^\s*-\s*cron:\s*['\"]?([^'\"\n]+)['\"]?\s*$", content, re.MULTILINE)
     if not match:
-        raise RuntimeError("Cron não encontrado em .github/workflows/synthetic-smoke.yml")
+        raise RuntimeError(f"Cron não encontrado em {workflow_file}")
     return match.group(1).strip()
 
 
 def main() -> int:
-    config_cron = _read_config_cron()
-    workflow_cron = _read_workflow_cron()
-    if config_cron != workflow_cron:
-        print(
-            "Cron dessincronizado.\n"
-            f"  monitor/monitor.config.env: {config_cron}\n"
-            f"  synthetic-smoke.yml:      {workflow_cron}\n"
-            "Atualize ambos para o mesmo valor."
-        )
+    mismatches = []
+    for name, workflow_file in WORKFLOWS.items():
+        config_cron = _read_config_cron(name)
+        workflow_cron = _read_workflow_cron(workflow_file)
+        if config_cron != workflow_cron:
+            mismatches.append((name, config_cron, workflow_cron))
+        else:
+            print(f"{name} sincronizado: {config_cron}")
+    if mismatches:
+        print("Crons dessincronizados:")
+        for name, config_cron, workflow_cron in mismatches:
+            print(f"  {name}: config={config_cron} workflow={workflow_cron}")
         return 1
-    print(f"Cron sincronizado: {config_cron}")
     return 0
 
 

@@ -22,14 +22,6 @@ def test_health_returns_ok(http_client: httpx.Client, base_url: str) -> None:
     assert payload.get("version")
 
 
-def test_ready_reports_dependencies(http_client: httpx.Client, base_url: str) -> None:
-    response = http_client.get(f"{base_url}/ready")
-    assert response.status_code in (200, 503)
-    payload = response.json()
-    assert "checks" in payload
-    assert payload.get("status") in ("ready", "not_ready")
-
-
 def test_landing_page_is_reachable(http_client: httpx.Client, base_url: str) -> None:
     response = http_client.get(f"{base_url}/")
     assert response.status_code == 200

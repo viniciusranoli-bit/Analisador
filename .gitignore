@@ -1,5 +1,6 @@
 .env
 monitor/monitor.config.local.env
+monitor/.state/
 .venv/
 venv/
 __pycache__/

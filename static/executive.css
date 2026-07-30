@@ -1,0 +1,267 @@
+/* Design system executivo compartilhado pela landing e pela aplicação. */
+:root {
+  --exec-navy: #0a1628;
+  --exec-navy-mid: #0f2044;
+  --exec-blue: #0077b5;
+  --exec-accent: #00c4f0;
+  --exec-surface: #ffffff;
+  --exec-canvas: #f4f7fc;
+  --exec-line: #e1e8f2;
+  --exec-text-muted: #5a6a82;
+  --exec-radius: 16px;
+  --exec-shadow: 0 12px 36px rgba(10, 22, 40, .09);
+}
+
+body {
+  font-family: 'Inter', system-ui, sans-serif !important;
+  background:
+    radial-gradient(circle at 8% 0%, rgba(0, 196, 240, .06), transparent 28%),
+    var(--exec-canvas) !important;
+  color: var(--exec-navy);
+}
+
+/* Aplicação */
+.main {
+  background: transparent;
+}
+
+.sidebar {
+  background:
+    linear-gradient(160deg, rgba(0, 196, 240, .08), transparent 35%),
+    var(--exec-navy);
+  border-right-color: rgba(255, 255, 255, .1);
+}
+
+.brand-icon {
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, var(--exec-blue), var(--exec-accent));
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0, 196, 240, .2);
+}
+
+.brand-icon svg { width: 24px; height: 24px; }
+.sidebar-brand { padding: 30px 24px 24px; }
+.brand-name {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 15px;
+  line-height: 1.15;
+  letter-spacing: .02em;
+  text-transform: none;
+}
+.brand-sub {
+  font-size: 9px;
+  letter-spacing: .12em;
+  color: rgba(255, 255, 255, .48);
+}
+.nav-item {
+  border: 1px solid transparent;
+  letter-spacing: .01em;
+}
+.nav-item.active {
+  background: linear-gradient(90deg, rgba(0, 196, 240, .2), rgba(0, 119, 181, .12));
+  border-color: rgba(0, 196, 240, .12);
+}
+.nav-item .icon {
+  font-size: 20px;
+  font-weight: 400;
+  color: var(--exec-accent);
+}
+
+.topbar {
+  background: rgba(255, 255, 255, .96);
+  border-bottom: 1px solid var(--exec-line);
+  height: 72px;
+  padding: 0 40px;
+  box-shadow: 0 1px 0 rgba(10, 22, 40, .03);
+}
+
+.topbar-title,
+.section-header h1,
+.form-card h3,
+.res-card h4,
+.hist-veredito {
+  font-family: 'Playfair Display', Georgia, serif;
+  letter-spacing: -.015em;
+}
+
+.topbar-badge {
+  background: linear-gradient(135deg, var(--exec-blue), var(--exec-accent));
+  box-shadow: 0 4px 12px rgba(0, 119, 181, .2);
+}
+
+.content { padding: 40px; }
+.form-grid, .result-panel { max-width: 1100px; }
+.section-header { margin-bottom: 28px; }
+.section-header p,
+.muted { color: var(--exec-text-muted); }
+.form-card, .res-card, .hist-card {
+  border-color: var(--exec-line);
+  border-radius: var(--exec-radius);
+  box-shadow: var(--exec-shadow);
+}
+
+.form-card h3,
+.res-card h4 {
+  color: var(--exec-blue);
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"],
+textarea,
+select,
+select.select {
+  min-height: 48px;
+  border-color: #d5deea;
+  background: var(--exec-surface);
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+textarea:focus,
+select:focus {
+  border-color: var(--exec-blue);
+  box-shadow: 0 0 0 4px rgba(0, 119, 181, .12);
+}
+
+.btn {
+  border-radius: 10px;
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--exec-blue), #0a9fd8);
+  border-color: transparent;
+  color: #fff;
+  box-shadow: 0 5px 16px rgba(0, 119, 181, .24);
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, #00689f, var(--exec-blue));
+  border-color: transparent;
+  color: #fff;
+}
+
+.btn-success {
+  background: linear-gradient(135deg, #00c896, #00a87a);
+  border-color: transparent;
+  color: #fff;
+}
+
+.btn-outline {
+  border-color: #cbd7e5;
+  color: var(--exec-navy);
+  background: #fff;
+}
+
+.btn-outline:hover {
+  border-color: var(--exec-blue);
+  color: var(--exec-blue);
+  background: #fff;
+}
+
+.upload-zone {
+  border-color: #cfdbea;
+  background: linear-gradient(180deg, #fbfdff, var(--exec-canvas));
+}
+
+.score-hero,
+.hist-card-top,
+.modal-header {
+  background:
+    linear-gradient(145deg, rgba(0, 196, 240, .14), transparent 42%),
+    var(--exec-navy);
+}
+
+.hist-card-top {
+  border-bottom: 1px solid rgba(255, 255, 255, .08);
+}
+
+.table {
+  border-color: var(--exec-line);
+  box-shadow: var(--exec-shadow);
+}
+
+.table th {
+  background: #f8fafe;
+  color: var(--exec-text-muted);
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+/* Landing */
+.landing-page {
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+.landing-page * {
+  font-family: 'Inter', system-ui, sans-serif !important;
+}
+
+.site-header .logo,
+.hero h1,
+.section-title,
+.plan-step,
+.plan-card h3,
+.dual-card h3 {
+  font-family: 'Playfair Display', Georgia, serif !important;
+}
+
+.site-header {
+  border-bottom-color: var(--exec-line);
+  box-shadow: 0 4px 20px rgba(10, 22, 40, .04);
+}
+
+.hero-visual,
+.dual-card,
+.gallery figure {
+  border-radius: var(--exec-radius);
+  box-shadow: var(--exec-shadow);
+}
+
+.plan-card {
+  border-radius: var(--exec-radius);
+  background: rgba(255, 255, 255, .07);
+}
+
+@media (max-width: 900px) {
+  .topbar { padding: 0 24px; }
+  .content { padding: 28px 24px; }
+  .form-grid, .result-grid { grid-template-columns: 1fr; }
+  .form-card-full, .res-card-full { grid-column: auto; }
+}
+
+@media (max-width: 700px) {
+  .sidebar {
+    width: 72px;
+  }
+  .main { margin-left: 72px; }
+  .sidebar-brand { padding: 20px 16px; }
+  .brand-name, .brand-sub, .nav-label, .nav-item {
+    font-size: 0;
+  }
+  .brand-icon { margin: 0 auto; }
+  .nav-item {
+    justify-content: center;
+    padding: 12px 8px;
+  }
+  .nav-item .icon { font-size: 18px; }
+  .sidebar-footer { padding: 14px 8px; text-align: center; }
+  .sidebar-footer .btn-logout-sidebar { font-size: 0; padding: 10px 8px; }
+  .sidebar-footer .btn-logout-sidebar::after {
+    content: '↪';
+    font-size: 16px;
+  }
+  .sidebar-footer .landing-back-link { font-size: 0; }
+  .sidebar-footer .landing-back-link::after {
+    content: '←';
+    font-size: 15px;
+  }
+  .topbar { height: 64px; padding: 0 18px; }
+  .topbar-title { font-size: 16px; }
+  .topbar-badge { display: none; }
+  .content { padding: 24px 16px; }
+  .section-header h1 { font-size: 24px; }
+  .form-card, .res-card { padding: 20px; }
+}

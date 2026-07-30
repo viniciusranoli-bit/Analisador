@@ -7,6 +7,10 @@ on:
     - cron: '*/5 * * * *'
   workflow_dispatch:
 
+permissions:
+  contents: read
+  actions: write
+
 jobs:
   validate-schedule:
     runs-on: ubuntu-latest
@@ -31,17 +35,8 @@ jobs:
       - name: Instalar dependências do monitor
         run: pip install -r monitor/requirements.txt
 
-      - name: Carregar configuração padrão
-        run: |
-          set -a
-          source monitor/monitor.config.env
-          set +a
-          echo "MONITOR_BASE_URL=${MONITOR_BASE_URL}" >> "$GITHUB_ENV"
-          echo "MONITOR_HTTP_TIMEOUT_SECONDS=${MONITOR_HTTP_TIMEOUT_SECONDS}" >> "$GITHUB_ENV"
-          echo "MONITOR_L1_MAX_LATENCY_MS=${MONITOR_L1_MAX_LATENCY_MS}" >> "$GITHUB_ENV"
-          echo "MONITOR_RETRY_COUNT=${MONITOR_RETRY_COUNT}" >> "$GITHUB_ENV"
-          echo "MONITOR_ALERT_FAILURE_THRESHOLD=${MONITOR_ALERT_FAILURE_THRESHOLD}" >> "$GITHUB_ENV"
-          echo "MONITOR_SMOKE_CRON=${MONITOR_SMOKE_CRON}" >> "$GITHUB_ENV"
+      - name: Exportar configuração por Python
+        run: python monitor/scripts/export_github_env.py
 
       - name: Executar smoke tests
         working-directory: monitor
@@ -49,3 +44,25 @@ jobs:
           MONITOR_E2E_EMAIL: ${{ secrets.MONITOR_E2E_EMAIL }}
           MONITOR_E2E_PASSWORD: ${{ secrets.MONITOR_E2E_PASSWORD }}
         run: python scripts/run_smoke.py
+
+  notify:
+    if: ${{ always() }}
+    needs: [validate-schedule, smoke]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Instalar dependências do monitor
+        run: pip install -r monitor/requirements.txt
+      - name: Exportar configuração por Python
+        run: python monitor/scripts/export_github_env.py
+      - name: Atualizar estado e alertas
+        working-directory: monitor
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          MONITOR_ALERT_WEBHOOK_URL: ${{ secrets.MONITOR_ALERT_WEBHOOK_URL }}
+          MONITOR_RUN_STATUS: ${{ needs.validate-schedule.result == 'success' && needs.smoke.result == 'success' && 'success' || 'failure' }}
+        run: python scripts/alert_state.py --status "$MONITOR_RUN_STATUS"

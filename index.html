@@ -1169,6 +1169,7 @@ select.select:focus { outline: none; border-color: var(--blue); }
 .role-badge.admin { background: rgba(0,119,181,.12); color: var(--blue); }
 .role-badge.user  { background: var(--gray-100); color: var(--gray-500); }
 </style>
+<link rel="stylesheet" href="/static/executive.css?v=3" />
 </head>
 <body>
 
@@ -1265,31 +1266,36 @@ select.select:focus { outline: none; border-color: var(--blue); }
 <!-- SIDEBAR -->
 <nav class="sidebar">
   <div class="sidebar-brand">
-    <div class="brand-icon">🧠</div>
-    <div class="brand-name">Analisador de LinkedIn</div>
-    <div class="brand-sub">v1.1.0</div>
+    <div class="brand-icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M4 17.5 9.5 12 13 15.5 20 8"/>
+        <path d="M15.5 8H20v4.5"/>
+      </svg>
+    </div>
+    <div class="brand-name">Analisador<br />de LinkedIn</div>
+    <div class="brand-sub">PLATAFORMA EXECUTIVA · v1.1.0</div>
   </div>
   <div class="sidebar-nav">
     <div class="nav-label">Menu</div>
     <div class="nav-item active" data-view="analise" onclick="switchView('analise', this)">
-      <span class="icon">📊</span> Análise
+      <span class="icon" aria-hidden="true">▦</span> Análise
     </div>
     <div class="nav-item" data-view="historico" onclick="switchView('historico', this)">
-      <span class="icon">🗂️</span> Histórico
+      <span class="icon" aria-hidden="true">◫</span> Histórico
     </div>
     <div class="nav-item" data-view="artigos-lidos" onclick="switchView('artigos-lidos', this)">
-      <span class="icon">📚</span> Artigos lidos
+      <span class="icon" aria-hidden="true">▤</span> Artigos lidos
     </div>
     <div id="admin-nav-wrap" style="display:none;">
       <div class="nav-label" style="margin-top:12px;">Admin</div>
       <div class="nav-item" data-view="admin-dashboard" onclick="switchView('admin-dashboard', this)">
-        <span class="icon">📊</span> Dashboard
+        <span class="icon" aria-hidden="true">◈</span> Dashboard
       </div>
       <div class="nav-item" data-view="admin-usuarios" onclick="switchView('admin-usuarios', this)">
-        <span class="icon">👥</span> Administração
+        <span class="icon" aria-hidden="true">◎</span> Administração
       </div>
       <div class="nav-item" data-view="admin-insights" onclick="switchView('admin-insights', this)">
-        <span class="icon">📈</span> Insights
+        <span class="icon" aria-hidden="true">⌁</span> Insights
       </div>
     </div>
   </div>
@@ -1334,19 +1340,39 @@ select.select:focus { outline: none; border-color: var(--blue); }
             <input type="file" id="file-input" accept=".zip" onchange="onFileChange(this)" />
             <div class="upload-icon" id="upload-icon">📂</div>
             <div class="upload-title" id="upload-title">Arraste o .zip ou clique para selecionar</div>
-            <div class="upload-sub">Arquivo único exportado pelo LinkedIn (não descompacte antes do envio)</div>
+            <div class="upload-sub">Não descompacte o arquivo antes do envio</div>
             <div class="upload-filename" id="upload-filename"></div>
+          </div>
+          <div class="field" style="margin-top:20px;">
+            <label>Quantos arquivos ZIP o LinkedIn gerou? <span class="req">*</span></label>
+            <div style="display:flex;gap:20px;flex-wrap:wrap;">
+              <label style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--navy);">
+                <input type="radio" name="quantidade-arquivos" value="1" checked onchange="onFileCountChange(this.value)" />
+                Um arquivo
+              </label>
+              <label style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--navy);">
+                <input type="radio" name="quantidade-arquivos" value="2" onchange="onFileCountChange(this.value)" />
+                Dois arquivos
+              </label>
+            </div>
+          </div>
+          <div class="upload-zone" id="upload-zone-2" style="display:none;margin-top:14px;" onclick="document.getElementById('file-input-2').click()">
+            <input type="file" id="file-input-2" accept=".zip" onchange="onFileChange(this, 2)" />
+            <div class="upload-icon" id="upload-icon-2">📂</div>
+            <div class="upload-title">Selecione o segundo .zip</div>
+            <div class="upload-sub">Não descompacte o arquivo antes do envio</div>
+            <div class="upload-filename" id="upload-filename-2"></div>
           </div>
           <ol class="upload-exec-steps">
             <li><strong>1 — Pedido</strong> LinkedIn: foto do perfil → Configurações e privacidade → Privacidade dos dados → Obter uma cópia dos seus dados.</li>
             <li><strong>2 — Processamento</strong> Aguarde a notificação; o arquivo pode levar alguns minutos ou dias, conforme o volume da conta.</li>
-            <li><strong>3 — Envio</strong> Transfira o <strong>.zip</strong> e carregue-o na zona acima — mantém integridade e sigilo dos dados.</li>
+            <li><strong>3 — Envio</strong> Transfira o(s) <strong>.zip</strong> e carregue-o(s) nas zonas acima — mantém integridade e sigilo dos dados.</li>
           </ol>
         </div>
 
         <!-- Especialidade + Senioridade -->
         <div class="form-card">
-          <h3>🎯 Posicionamento</h3>
+          <h3>Posicionamento</h3>
           <div class="field">
             <label>Especialidade <span class="req">*</span></label>
             <input type="text" id="especialidade" placeholder="Ex: Engenharia de Software, Marketing Digital..." />
@@ -1370,7 +1396,7 @@ select.select:focus { outline: none; border-color: var(--blue); }
 
         <!-- Objetivo + Cargo -->
         <div class="form-card">
-          <h3>🚀 Objetivo</h3>
+          <h3>Objetivo profissional</h3>
           <div class="field">
             <label>Objetivo profissional <span class="req">*</span></label>
             <textarea id="objetivo" rows="3" placeholder="Ex: Transição para liderança, nova empresa, reposicionamento de carreira..."></textarea>
@@ -1383,7 +1409,7 @@ select.select:focus { outline: none; border-color: var(--blue); }
 
         <!-- Contexto adicional -->
         <div class="form-card form-card-full">
-          <h3>💬 Contexto Adicional <span style="font-size:10px;color:var(--gray-300);font-weight:400;text-transform:none;letter-spacing:0">(opcional)</span></h3>
+          <h3>Contexto adicional <span style="font-size:10px;color:var(--gray-300);font-weight:400;text-transform:none;letter-spacing:0">(opcional)</span></h3>
           <div class="field">
             <textarea id="contexto" rows="3" placeholder="Informações relevantes: segmento de atuação, momento de carreira, empresa alvo, gaps, conquistas recentes..."></textarea>
           </div>
@@ -1584,7 +1610,7 @@ select.select:focus { outline: none; border-color: var(--blue); }
 
       <div class="form-grid">
         <div class="form-card form-card-full">
-          <h3>📊 Feedbacks de Artigos</h3>
+          <h3>Feedback de artigos</h3>
           <div id="insights-empty" class="muted">Carregando métricas...</div>
           <div class="insights-grid" id="insights-grid" style="display:none;"></div>
           <div class="admin-scroll" style="margin-top:12px;">
@@ -1606,7 +1632,7 @@ select.select:focus { outline: none; border-color: var(--blue); }
         </div>
 
         <div class="form-card form-card-full">
-          <h3>💡 Sugestões Recebidas</h3>
+          <h3>Sugestões recebidas</h3>
           <div id="sugestoes-empty" class="muted">Carregando sugestões...</div>
           <div class="admin-scroll" style="margin-top:12px;">
             <table class="table" id="sugestoes-table" style="display:none;">
@@ -1633,7 +1659,7 @@ select.select:focus { outline: none; border-color: var(--blue); }
 
       <div class="form-grid">
         <div class="form-card form-card-full">
-          <h3>👤 Usuários cadastrados</h3>
+          <h3>Usuários cadastrados</h3>
           <div id="users-empty" class="muted">Carregando...</div>
           <table class="table" id="users-table" style="display:none;margin-top:10px;">
             <thead>
@@ -1651,7 +1677,7 @@ select.select:focus { outline: none; border-color: var(--blue); }
         </div>
 
         <div class="form-card">
-          <h3>➕ Criar usuário</h3>
+          <h3>Criar usuário</h3>
           <div class="field">
             <label>Usuário</label>
             <input type="text" id="new-user-name" placeholder="ex: joao" />
@@ -1675,7 +1701,7 @@ select.select:focus { outline: none; border-color: var(--blue); }
         </div>
 
         <div class="form-card">
-          <h3>✏️ Editar / senha</h3>
+          <h3>Editar usuário e senha</h3>
           <div class="field">
             <label>Usuário selecionado</label>
             <input type="text" id="selected-user" disabled />
@@ -1949,13 +1975,37 @@ function switchView(viewId, el) {
 }
 
 // ─── FILE UPLOAD ───
-function onFileChange(input) {
+function onFileChange(input, slot = 1) {
   const file = input.files[0];
   if (!file) return;
-  document.getElementById('upload-icon').textContent = '✅';
-  document.getElementById('upload-title').textContent = 'Arquivo selecionado';
-  document.getElementById('upload-filename').textContent = file.name;
-  document.getElementById('upload-zone').classList.add('has-file');
+  if (!file.name.toLowerCase().endsWith('.zip')) {
+    input.value = '';
+    return showError('Selecione somente arquivos ZIP exportados do LinkedIn.');
+  }
+  document.getElementById(slot === 1 ? 'upload-icon' : 'upload-icon-2').textContent = '✅';
+  if (slot === 1) {
+    document.getElementById('upload-title').textContent = 'Arquivo selecionado';
+    document.getElementById('upload-filename').textContent = file.name;
+    document.getElementById('upload-zone').classList.add('has-file');
+  } else {
+    document.querySelector('#upload-zone-2 .upload-title').textContent = 'Segundo arquivo selecionado';
+    document.getElementById('upload-filename-2').textContent = file.name;
+    document.getElementById('upload-zone-2').classList.add('has-file');
+  }
+}
+
+function onFileCountChange(value) {
+  const secondZone = document.getElementById('upload-zone-2');
+  const secondInput = document.getElementById('file-input-2');
+  const twoFiles = value === '2';
+  secondZone.style.display = twoFiles ? 'block' : 'none';
+  if (!twoFiles) {
+    secondInput.value = '';
+    document.getElementById('upload-icon-2').textContent = '📂';
+    document.getElementById('upload-filename-2').textContent = '';
+    document.querySelector('#upload-zone-2 .upload-title').textContent = 'Selecione o segundo .zip';
+    secondZone.classList.remove('has-file');
+  }
 }
 
 // Drag & drop
@@ -1977,6 +2027,8 @@ zone.addEventListener('drop', e => {
 // ─── ANÁLISE ───
 async function analisar() {
   const arquivo = document.getElementById('file-input').files[0];
+  const doisArquivos = document.querySelector('input[name="quantidade-arquivos"]:checked').value === '2';
+  const arquivo2 = document.getElementById('file-input-2').files[0];
   const especialidade = document.getElementById('especialidade').value.trim();
   const senioridade = document.getElementById('senioridade').value;
   const objetivo = document.getElementById('objetivo').value.trim();
@@ -1985,6 +2037,7 @@ async function analisar() {
 
   // Validações
   if (!arquivo) return showError('Selecione o arquivo ZIP exportado do LinkedIn.');
+  if (doisArquivos && !arquivo2) return showError('Selecione também o segundo arquivo ZIP exportado do LinkedIn.');
   if (!especialidade) return showError('Informe sua especialidade.');
   if (!senioridade) return showError('Selecione sua senioridade.');
   if (!objetivo) return showError('Descreva seu objetivo profissional.');
@@ -1993,6 +2046,7 @@ async function analisar() {
 
   const fd = new FormData();
   fd.append('arquivo', arquivo);
+  if (doisArquivos) fd.append('arquivo_2', arquivo2);
   fd.append('especialidade', especialidade);
   fd.append('senioridade', senioridade);
   fd.append('objetivo', objetivo);
@@ -2223,10 +2277,17 @@ async function salvarHistorico() {
 function novaAnalise() {
   document.getElementById('result-panel').classList.remove('active');
   document.getElementById('file-input').value = '';
+  document.getElementById('file-input-2').value = '';
   document.getElementById('upload-icon').textContent = '📂';
+  document.getElementById('upload-icon-2').textContent = '📂';
   document.getElementById('upload-title').textContent = 'Arraste o .zip ou clique para selecionar';
   document.getElementById('upload-filename').textContent = '';
+  document.querySelector('#upload-zone-2 .upload-title').textContent = 'Selecione o segundo .zip';
+  document.getElementById('upload-filename-2').textContent = '';
   document.getElementById('upload-zone').classList.remove('has-file');
+  document.getElementById('upload-zone-2').classList.remove('has-file');
+  document.getElementById('upload-zone-2').style.display = 'none';
+  document.querySelector('input[name="quantidade-arquivos"][value="1"]').checked = true;
   window.scrollTo({ top: 0, behavior: 'smooth' });
   currentResult = null;
 }

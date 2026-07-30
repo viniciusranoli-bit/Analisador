@@ -1,0 +1,31 @@
+# Fluxo crítico de baixa frequência: upload + análise com IA.
+name: Synthetic Deep Flow
+
+on:
+  schedule:
+    - cron: '0 8,20 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deep:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Instalar dependências do monitor
+        run: pip install -r monitor/requirements.txt
+      - name: Exportar configuração por Python
+        run: python monitor/scripts/export_github_env.py
+      - name: Executar fluxo caro
+        working-directory: monitor
+        env:
+          MONITOR_DEEP_ENABLED: 'true'
+          MONITOR_DEEP_ZIP_PATH: ${{ secrets.MONITOR_DEEP_ZIP_PATH }}
+          MONITOR_E2E_EMAIL: ${{ secrets.MONITOR_E2E_EMAIL }}
+          MONITOR_E2E_PASSWORD: ${{ secrets.MONITOR_E2E_PASSWORD }}
+        run: python scripts/run_smoke.py --layer deep
